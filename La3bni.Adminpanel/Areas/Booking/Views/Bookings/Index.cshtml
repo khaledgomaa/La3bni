@@ -1,0 +1,74 @@
+﻿@model IEnumerable<Models.Booking>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Bookings</h1>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.ApplicationUser.UserName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Playground.Name)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.PlaygroundTimes.From)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.PlaygroundTimes.To)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Price)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.BookedDate)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.BookingStatus)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.MaxNumOfPlayers)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ApplicationUser.UserName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Playground.Name)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.PlaygroundTimes.From)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.PlaygroundTimes.To)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Price)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.BookedDate)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.BookingStatus)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.MaxNumOfPlayers)
+                </td>
+                <td>
+                    <a asp-action="Details" asp-route-id="@item.BookingId">Details</a> |
+                    <a asp-action="Delete" asp-route-id="@item.BookingId">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

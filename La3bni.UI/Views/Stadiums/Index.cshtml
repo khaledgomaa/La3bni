@@ -1,0 +1,96 @@
+﻿@model IEnumerable<Models.Playground>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+@using Microsoft.Extensions.Configuration
+@inject IConfiguration UrlConfig
+
+<link rel="stylesheet" href="~/plays.css" />
+
+<div class="myPadd">
+    <form asp-action="Index" method="get" style="margin-top:50px;margin-left:40px;padding-left:20px">
+        <div class="row">
+
+            <div class="col-md-2">
+                <label style="margin-left:10px">  Name</label>
+            </div>
+            <div class="col-md-2">
+                <select name="PlaygroundName">
+
+                    <option selected value=" ">Select PlayGround</option>
+                    @foreach (var stadium in Model)
+                    {
+                        string stdName = stadium?.Name;
+                        if (stdName == @ViewData["PName"]?.ToString())
+                        {
+                            <option selected value="@stdName">@stdName</option>
+                        }
+                        else
+                        {
+                            <option value="@stdName">@stdName</option>
+                        }
+
+                    }
+                </select>
+            </div>
+
+            <div class="col-md-2">
+                <label style="margin-left:10px">Price</label>
+            </div>
+            <div class="col-md-2">
+                <input style="border: 3px solid #fceced" placeholder=" 40 for example" type="number" name="price" value="@ViewData["Price"]" min="40" />
+            </div>
+            <div class="col-md-2">
+                <label style="margin-left:10px">City</label>
+            </div>
+            <div class="col-md-2">
+                <select class="citySelection" name="city">
+                    <option selected value=" ">Choose City</option>
+                    @foreach (City city in Enum.GetValues(typeof(City)))
+                    {
+                        if (@ViewData["city"]?.ToString() == city.ToString())
+                        {
+                            <option selected value="@city">@city</option>
+                        }
+                        else
+                        {
+                            <option value="@city">@city</option>
+                        }
+
+                    }
+                </select>
+            </div>
+            <div style="margin-left:80px" class="col-md-2">
+                <input type="submit" value="Search" style="color: #e5474b !important;padding:0;margin:0;border:0;background:none" /> |
+                <a asp-action="Index" asp- style="font-size:.8em;font-weight: 700;height: 3.5em;line-height: 3.65em;">Display All</a>
+            </div>
+        </div>
+    </form>
+</div>
+<h1 class="stadiumsTitle"> Stadiums </h1>
+
+<div class="mainConatainerPlayGround">
+
+    @foreach (var item in Model)
+    {
+        <div class="playGroundContainer">
+
+            <div class="hvrbox">
+                <img src="@(UrlConfig.GetSection("AdminPanelURL").Value+item.ImagePath)" asp-append-version="true" class="hvrbox-layer_bottom" />
+                <a asp-action="Index" asp-controller="Booking" asp-route-id="@item.PlaygroundId">
+                    <div class="hvrbox-layer_top">
+
+                        <div class="hvrbox-text">
+                            <span>Name : @Html.DisplayFor(modelItem => item.Name)</span><br />
+                            <span>City : @Html.DisplayFor(modelItem => item.City)</span><br />
+                            <span>Services : @Html.DisplayFor(modelItem => item.Services)</span><br />
+                        </div>
+                    </div>
+                </a>
+            </div>
+            <div class="HelloDiv"><span>@item.Name</span><span><a asp-action="Index" asp-controller="Booking" asp-route-id="@item.PlaygroundId">Book</a></span></div>
+        </div>
+    }
+</div>

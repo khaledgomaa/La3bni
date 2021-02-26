@@ -1,0 +1,48 @@
+﻿@model IEnumerable<Microsoft.AspNetCore.Identity.IdentityRole>
+
+@{
+    ViewBag.Title = "All Roles";
+
+}
+
+<h2>All Roles </h2>
+
+@if (Model.Any())
+{
+    <a asp-area="Admin" asp-controller="Administration" asp-action="CreateRole">
+        Create New Role
+    </a>
+
+    foreach (var role in Model)
+    {
+        <div> Role Id : @role.Id </div>
+
+        <div>  @role.Name </div>
+
+        <div>
+            <a asp-controller="Administration" asp-action="EditRole" asp-area="Admin"
+               asp-route-id="@role.Id"> Edit </a>
+
+            <a href="#"> Delete </a>
+        </div>
+    }
+}
+else
+{
+    <div>  No roles created yet </div>
+
+    <a asp-controller="Administration" asp-action="CreateRole" asp-area="Admin">
+        Create New Role
+    </a>
+}
+
+@{
+    ViewBag.Title = "Not Found";
+
+}
+
+<h2>@ViewBag.ErrorMsg </h2>
+
+<a asp-action="Index" asp-controller="Administration">
+    Click here to navigate to the home
+</a>

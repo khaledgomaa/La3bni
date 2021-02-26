@@ -1,0 +1,51 @@
+﻿@using Repository
+
+@model Models.ApplicationUser
+@{
+    ViewBag.Title = "User Profile";
+    string imgPath = "~/AppImages/" + @Model.ImagePath;
+}
+
+@section Styles{
+    <link href="~/assets/css/profile.css" rel="stylesheet" />
+}
+@{
+
+}
+<aside class="profile-card">
+    <header>
+        <!-- here’s the avatar -->
+        <h5>Personal Info</h5>
+        <a target="_blank" href="#">
+            @*<img src="~/AppImages/21024442627571719.png" />*@
+            <img src=@Url.Content(imgPath) />
+        </a>
+
+        <!-- the username -->
+        <h2>
+            UserName:  @Model.UserName
+        </h2>
+
+        <!-- and role or location -->
+        <h2>
+            @*@Model.Type*@
+        </h2>
+    </header>
+
+    <!-- bit of a bio; who are you? -->
+    <div class="profile-bio">
+
+        <p> Email : @Model.Email</p>
+        <p> Gender : @Model.gender</p>
+        <p> City : @Model.city</p>
+        <p> Phone Number  : @Model.PhoneNumber</p>
+
+        @*@if (@Model.Type == UserType.Owner){}*@
+
+        <img src="~/images/football-player.png" />
+        @Html.ActionLink("Edit play grounds", "Dash", "Account")
+        <br />
+
+        List<Playground> pgs = new List<Playground>();
+    </div>
+</aside>

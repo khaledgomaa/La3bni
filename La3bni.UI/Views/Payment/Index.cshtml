@@ -1,0 +1,18 @@
+﻿@using Microsoft.Extensions.Options;
+@inject IOptions<La3bni.UI.Payment.StripeSettings> Stripe;
+
+<body>
+    <div class="text-center" style="position:absolute;margin-top:5%">
+        <form asp-controller="Payment" asp-action="Pay" method="post">
+            <article>
+                <label>Amount : $1</label>
+            </article>
+            <script src="//checkout.stripe.com/v2/checkout.js"
+                    class="stripe-button"
+                    data-key="@Stripe.Value.Publishablekey"
+                    data-locale="auto"
+                    data-description="Sample Charge">
+            </script>
+        </form>
+    </div>
+</body>

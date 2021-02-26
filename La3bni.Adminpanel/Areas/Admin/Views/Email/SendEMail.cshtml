@@ -1,0 +1,49 @@
+﻿@model FeedBack
+
+@{
+    ViewData["Title"] = "SendEmail";
+}
+
+<h1>SendEmail</h1>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="SendEmail">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label class="control-label"> Subject</label>
+                <input required type="text" oninput="setCustomValidity('');" oninvalid="setCustomValidity('Please Enter Subject');" asp-for="Name" class="form-control" />
+                @*<span asp-validation-for="Name" class="text-danger"></span>*@
+            </div>
+            <div class="form-group">
+                <label asp-for="SelectedEmails" class="control-label"></label>
+                <select asp-for="SelectedEmails" asp-items="@ViewBag.Emails" multiple class="select select--multiple"></select>
+                <span asp-validation-for="SelectedEmails" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="button" onclick="SelectAll();" value="SelectAll" class="btn btn-primary" />
+            </div>
+            <div class="form-group">
+                <label asp-for="Message" class="control-label"></label>
+                <textarea cols="4" rows="3" asp-for="Message" class="form-control"></textarea>
+                <span asp-validation-for="Message" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Send" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Home</a>
+</div>
+
+<script>
+    function SelectAll() {
+        options = document.getElementsByTagName("option");
+        for (i = 0; i < options.length; i++) {
+            options[i].selected = "true";
+        }
+    }
+</script>
