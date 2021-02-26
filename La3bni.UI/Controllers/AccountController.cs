@@ -12,7 +12,7 @@ namespace La3bni.UI.Controllers
 {
     public class AccountController : Controller
     {
-        public static string USERID = "";
+        public  string USERID = "";
         private readonly UserManager<ApplicationUser> userManager;
         private readonly SignInManager<ApplicationUser> signInManager;
         private readonly ImageManager imageManager;
