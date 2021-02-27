@@ -49,6 +49,17 @@ namespace La3bni.UI
             .AddEntityFrameworkStores<La3bniContext>()
             .AddDefaultTokenProviders();
 
+            services.AddAuthentication()
+                .AddGoogle(opt =>
+                {
+                    opt.ClientId = "370639406913-mvjdn4trffvdo9sciptf26ve3qqaumpv.apps.googleusercontent.com";
+                    opt.ClientSecret = "2nLuKM6LRo09WEiONbE9wcpa";
+                })
+                .AddFacebook(opt =>
+                {
+                    opt.ClientId = "691976331484726";
+                    opt.ClientSecret = "7ee0514ba330aaf2cf97348fbaf11d86";
+                });
             services.Configure<StripeSettings>(configuration.GetSection("Stripe"));
         }
 
