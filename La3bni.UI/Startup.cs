@@ -42,9 +42,6 @@ namespace La3bni.UI
 
             services.AddScoped<ImageManager, ImageManager>();
 
-
-            //services.AddScoped<IEmailRepository, EmailRepository>();
-
             services.AddIdentity<ApplicationUser, IdentityRole>(options =>
             {
                 options.Password.RequireDigit = false;
