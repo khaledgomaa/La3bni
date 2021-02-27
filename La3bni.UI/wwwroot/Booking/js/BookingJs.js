@@ -87,17 +87,6 @@ function submit() {
             //console.log(msg);
         }
     });
-
-    //if (document.getElementById("bookBtn").value == "Book") {
-    //    CreateBooking();
-    //} else if (document.getElementById("bookBtn").value == "Join Team") {
-    //    joinTeam();
-    //} else if (document.getElementById("bookBtn").value == "Cancel Booking") {
-    //    CancelBooking();
-    //} else if (document.getElementById("bookBtn").value == "Leave Team") {
-    //    LeaveTeam();
-    //}
-    //resetDateAndPeriod();
 }
 
 function checkSubmition() {

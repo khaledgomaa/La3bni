@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Models;
 using Models.ViewModels;
-using Newtonsoft.Json;
 using Repository;
 using System;
 using System.Collections.Generic;
@@ -18,15 +17,12 @@ namespace La3bni.UI.Controllers
     {
         private readonly IUnitOfWork unitOfWork;
         private readonly UserManager<ApplicationUser> userManager;
-        private readonly SignInManager<ApplicationUser> signInManager;
 
         public BookingController(IUnitOfWork _unitOfWork,
-                                UserManager<ApplicationUser> _userManager,
-                                SignInManager<ApplicationUser> _signInManager)
+                                UserManager<ApplicationUser> _userManager)
         {
             unitOfWork = _unitOfWork;
             userManager = _userManager;
-            signInManager = _signInManager;
         }
 
         [Route("Booking/{id}")]
@@ -276,7 +272,7 @@ namespace La3bni.UI.Controllers
                     return Json(new { error = "Team leader already canceled booking please reload your page" });
                 }
             }
-            return Json(new { redirectToUrl = Url.Action("", "Home") });
+            return Json(new { redirectToUrl = Url.Action("Teams", "MyBookings") });
         }
 
         public async Task UpdateRate(string playgroundId, float rate)
