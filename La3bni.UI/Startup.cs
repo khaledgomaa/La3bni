@@ -41,9 +41,9 @@ namespace La3bni.UI
 
             services.AddScoped<IUnitOfWork, UnitOfWork>();
 
-            services.AddScoped<ImageManager, ImageManager>();
-
             services.AddScoped<IEmailRepository, EmailRepository>();
+
+            services.AddScoped<ImageManager, ImageManager>();
 
             services.AddIdentity<ApplicationUser, IdentityRole>(options =>
             {
