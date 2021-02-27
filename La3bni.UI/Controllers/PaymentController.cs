@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
+using Repository;
 using Stripe;
 using Stripe.Checkout;
 using System;
@@ -12,10 +13,12 @@ namespace La3bni.UI.Controllers
     public class PaymentController : Controller
     {
         private readonly IConfiguration configuration;
+        private readonly IUnitOfWork unitOfWork;
 
-        public PaymentController(IConfiguration _configuration)
+        public PaymentController(IConfiguration _configuration, IUnitOfWork _unitOfWork)
         {
             configuration = _configuration;
+            unitOfWork = _unitOfWork;
         }
 
         public IActionResult Index()
@@ -29,8 +32,9 @@ namespace La3bni.UI.Controllers
         }
 
         [HttpPost]
-        public IActionResult Charge(int usdCurrency = 5)
+        public async Task<IActionResult> Charge(int bookingId)
         {
+            long usdCurrency = (long)(await unitOfWork.BookingRepo.Find(b => b.BookingId == bookingId)).Price;
             var domain = configuration["Domain"];
             var options = new SessionCreateOptions
             {
@@ -55,8 +59,8 @@ namespace La3bni.UI.Controllers
                   },
                 },
                 Mode = "payment",
-                SuccessUrl = domain + "/Payment/OrderSuccess?session_id={CHECKOUT_SESSION_ID}",
-                CancelUrl = domain + "/Payment/Index",
+                SuccessUrl = domain + "/Payment/OrderSuccess?session_id={CHECKOUT_SESSION_ID}&bookingId=" + bookingId,
+                CancelUrl = domain + "/MyBookings/Index",
             };
             var service = new SessionService();
             Session session = service.Create(options);
@@ -64,7 +68,7 @@ namespace La3bni.UI.Controllers
         }
 
         [HttpGet]
-        public ActionResult OrderSuccess([FromQuery] string session_id)
+        public async Task<ActionResult> OrderSuccess([FromQuery] string session_id, int bookingId)
         {
             var sessionService = new SessionService();
             Session session = sessionService.Get(session_id);
@@ -72,7 +76,12 @@ namespace La3bni.UI.Controllers
             var customerService = new CustomerService();
             Customer customer = customerService.Get(session.CustomerId);
 
-            return RedirectToAction("Index", "Home");
+            var bookingDetails = await unitOfWork.BookingRepo.Find(b => b.BookingId == bookingId);
+            bookingDetails.Paid = 1; //paid done
+            unitOfWork.BookingRepo.Update(bookingDetails);
+            unitOfWork.Save();
+
+            return RedirectToAction("Index", "MyBookings");
         }
 
         public IActionResult Cancel()

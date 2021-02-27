@@ -31,5 +31,12 @@ namespace Repository.CustomRepository
         {
             return la3BniContext.BookingTeams;
         }
+
+        public IQueryable<BookingTeam> GetAllIQueryableWithInclude()
+        {
+            return la3BniContext.BookingTeams.Include(b => b.Booking)
+                                             .Include(b => b.Booking.Playground)
+                                             .Include(b => b.Booking.PlaygroundTimes);
+        }
     }
 }

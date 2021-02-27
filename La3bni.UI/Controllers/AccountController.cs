@@ -264,7 +264,7 @@ namespace La3bni.UI.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> login(LogIN user)
+        public async Task<IActionResult> login(LogIN user, string returnUrl)
         {
             if (ModelState.IsValid)
             {
@@ -282,7 +282,11 @@ namespace La3bni.UI.Controllers
                     if (result.Succeeded)
                     {
                         USERID = Appuser.Id;
-                        return RedirectToAction("myProfile", Appuser);
+                        if (!string.IsNullOrEmpty(returnUrl))
+                        {
+                            return Redirect("/" + returnUrl);
+                        }
+                        return RedirectToAction(nameof(Index), "Home");
                     }
 
                     ModelState.AddModelError("", "Not correct data");
