@@ -10,10 +10,6 @@ using Microsoft.Extensions.Hosting;
 using Models;
 using Repository;
 using Stripe;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace La3bni.UI
 {
@@ -62,6 +58,11 @@ namespace La3bni.UI
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
+            }
+            else
+            {
+                app.UseExceptionHandler("/Error/{0}");
+                app.UseStatusCodePagesWithReExecute("/Error/{0}");
             }
 
             StripeConfiguration.ApiKey = configuration.GetSection("Stripe")["SecretKey"];
