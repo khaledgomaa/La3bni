@@ -13,6 +13,7 @@ using System.Threading.Tasks;
 
 namespace La3bni.UI.Controllers
 {
+    [Authorize]
     public class BookingController : Controller
     {
         private readonly IUnitOfWork unitOfWork;
@@ -30,6 +31,7 @@ namespace La3bni.UI.Controllers
 
         [Route("Booking/{id}")]
         [Route("Booking/Index/{id}")]
+        [AllowAnonymous]
         public async Task<IActionResult> Index(int id)
         {
             Playground playGround = await unitOfWork.PlayGroundRepo.Find(p => p.PlaygroundId == id);
@@ -37,6 +39,7 @@ namespace La3bni.UI.Controllers
             return View(playGround);
         }
 
+        [AllowAnonymous]
         public List<PlayGroundTimesViewModel> GetTimes(int id)
         {
             IEnumerable<PlaygroundTimes> times = unitOfWork.PlaygroundTimesRepo.GetAllIQueryable()
@@ -127,8 +130,7 @@ namespace La3bni.UI.Controllers
             return (await unitOfWork.BookingTeamRepo.Find(b => b.BookingId == bookingId && b.ApplicationUserId == userId))?.BookingId ?? 0;
         }
 
-        [Authorize]
-        public async Task<IActionResult> CreateBooking(string period, int PlaygroundId, string selectedDate, string numOfPlayers)
+        public async Task<IActionResult> CreateBooking(string period, int playgroundId, string selectedDate, string numOfPlayers)
         {
             if (int.TryParse(period, out int timeId) && int.TryParse(numOfPlayers, out int playersNo))
             {
@@ -147,7 +149,7 @@ namespace La3bni.UI.Controllers
                     BookingStatus = BookingStatus.Public,
                     BookedDate = Convert.ToDateTime(selectedDate),
                     PlaygroundTimesId = timeId,
-                    PlaygroundId = PlaygroundId,
+                    PlaygroundId = playgroundId,
                     MaxNumOfPlayers = playersNo,
                     Price = price
                 };
@@ -174,7 +176,6 @@ namespace La3bni.UI.Controllers
             return Json(new { redirectToUrl = Url.Action("", "Home") });
         }
 
-        [Authorize]
         public async Task<IActionResult> JoinTeam(string bookingId)
         {
             if (int.TryParse(bookingId, out int bookId))
@@ -217,7 +218,6 @@ namespace La3bni.UI.Controllers
             return Json(new { redirectToUrl = Url.Action("", "Home") });
         }
 
-        [Authorize]
         public async Task<IActionResult> CancelBooking(string bookingId)
         {
             if (int.TryParse(bookingId, out int bookId))
@@ -244,7 +244,6 @@ namespace La3bni.UI.Controllers
             return Json(new { redirectToUrl = Url.Action("", "Home") });
         }
 
-        [Authorize]
         public async Task<IActionResult> LeaveTeam(string bookingId)
         {
             if (int.TryParse(bookingId, out int bookId))
@@ -320,9 +319,10 @@ namespace La3bni.UI.Controllers
                                   .Find(b => b.ApplicationUserId == userId && b.PlaygroundId == playGroundId)) ?? new PlaygroundRate();
         }
 
-        private async Task<ApplicationUser> GetCurrentUser()
+        [AllowAnonymous]
+        public async Task<ApplicationUser> GetCurrentUser()
         {
-            return await userManager.FindByNameAsync("khaledgomaa");
+            return await userManager.GetUserAsync(User);
         }
 
         private async Task<Status> CheckPlaygroundStatus(int playgroundId)

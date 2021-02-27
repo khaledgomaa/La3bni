@@ -72,6 +72,35 @@ function removeMaxNumOfPlayers() {
 
 function submit() {
     //createCookieForDateAndPeriod();
+    $.ajax({
+        type: "get",
+        url: "https://localhost:44379/Booking/GetCurrentUser",
+
+        success: function (response) {
+            if (response == null) {
+                window.location.href = "/Account/login?returnUrl=Booking/Index/" + document.getElementById("playground").value;
+            } else {
+                checkSubmition();
+            }
+        },
+        error: function (req, status, error) {
+            //console.log(msg);
+        }
+    });
+
+    //if (document.getElementById("bookBtn").value == "Book") {
+    //    CreateBooking();
+    //} else if (document.getElementById("bookBtn").value == "Join Team") {
+    //    joinTeam();
+    //} else if (document.getElementById("bookBtn").value == "Cancel Booking") {
+    //    CancelBooking();
+    //} else if (document.getElementById("bookBtn").value == "Leave Team") {
+    //    LeaveTeam();
+    //}
+    //resetDateAndPeriod();
+}
+
+function checkSubmition() {
     if (document.getElementById("bookBtn").value == "Book") {
         CreateBooking();
     } else if (document.getElementById("bookBtn").value == "Join Team") {
@@ -81,7 +110,6 @@ function submit() {
     } else if (document.getElementById("bookBtn").value == "Leave Team") {
         LeaveTeam();
     }
-    //resetDateAndPeriod();
 }
 
 function CreateBooking() {
@@ -91,7 +119,7 @@ function CreateBooking() {
         data:
         {
             period: document.getElementById("periods").value,
-            PlaygroundId: document.getElementById("playground").value,
+            playgroundId: document.getElementById("playground").value,
             selectedDate: document.getElementById("selDate").value,
             numOfPlayers: document.getElementsByName("maxNum")[0].value
         },
@@ -367,52 +395,7 @@ function updateRateInDb(selRate) {
     });
 }
 
-//function SendBooks() {
-//    var books = [
-//        { id: 1, name: 'khaled' },
-//        { id: 2, name: 'islam' },
-//        { id: 3, name: 'ali' }
-//    ];
-//    books = JSON.stringify(books);
-//    $.ajax({
-//        dataType: "text",
-//        type: "POST",
-//        url: "https://localhost:44379/Booking/GetBooks",
-//        data: { books: books },
-//        success: function (response) {
-//            console.log(response);
-//            //window.location.href = response.redirectToUrl;
-//        },
-//        error: function (req, status, error) {
-//            //console.log(msg);
-//        }
-//    });
-//}
-
 var Confirm = new CustomConfirm();
+
 checkBooking();
 getCurrentRate();
-
-//var literCookies = [];
-//function getCookie(cookieName) {
-//    var cookies = document.cookie.split(";");
-//    for (var i = 0; i < cookies.length; i++) {
-//        literCookies[cookies[i].split("=")[0].trim()] = cookies[i].split("=")[1];
-//    }
-//    console.log(literCookies);
-//    return literCookies[cookieName];
-//}
-
-//function resetDateAndPeriod() {
-//    var x = "2021/21/02";
-//    console.log(Date.parse(x.replaceAll("/", " ")));
-//    document.getElementById("selDate").value = Date.parse(x.replaceAll("/", " "));
-//    //console.log(getCookie("curPeriod"));
-//    //console.log(getCookie("curDate"));
-//    document.getElementById("periods").value = 7;
-//}
-
-//function createCookieForDateAndPeriod() {
-//    document.cookie = "curDate" + "=" + document.getElementById("selDate").value;
-//    document.cookie = "curPeriod" + "=" + document.getElementById("periods").value;
-//}
