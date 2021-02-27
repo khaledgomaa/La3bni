@@ -5,14 +5,31 @@
 
 .center {
     position: relative;
-    left: 17%;
+    left: 2%;
 }
 
 .pad-elements {
     padding-bottom: 5%;
 }
 
-.btnStyle {
-    background-color: darkred;
+.btnCancel {
     padding: 0;
+}
+
+.btnCheck {
+    padding-left: 5%;
+}
+
+.posBtn {
+    left: 15%;
+}
+
+.checkout {
+    padding: 0;
+    background-color: forestgreen;
+}
+
+.teamsFrom {
+    position: relative;
+    left: 16%;
 }

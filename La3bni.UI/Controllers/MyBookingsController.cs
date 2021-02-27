@@ -21,22 +21,60 @@ namespace La3bni.UI.Controllers
             userManager = _userManager;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            return View();
+            string userId = (await GetCurrentUser())?.Id;
+            int curHour = GetCurrentHour();
+            var myBookings = unitOfWork.BookingRepo.GetAllWithInclude()
+                                                   .Where(a => a.ApplicationUserId == userId
+                                                        && a.BookedDate.Date >= DateTime.Now.Date
+                                                        && a.PlaygroundTimes.From.Hour >= curHour);
+            return View(myBookings);
         }
 
         public async Task<IActionResult> Teams()
         {
             string userId = (await GetCurrentUser())?.Id;
-            int curHour = DateTime.Now.Hour % 12;
-            curHour = curHour != 0 ? curHour : 12;
+            int curHour = GetCurrentHour();
             var bookingDetails = unitOfWork.BookingTeamRepo.GetAllIQueryableWithInclude()
                                            .Where(a => a.ApplicationUserId == userId
                                            && a.Booking.BookedDate.Date >= DateTime.Now.Date
-                                           && a.Booking.PlaygroundTimes.From.Hour > curHour);
+                                           && a.Booking.PlaygroundTimes.From.Hour >= curHour);
 
             return View(bookingDetails);
+        }
+
+        //12 hours format
+        private int GetCurrentHour()
+        {
+            int curHour = DateTime.Now.Hour % 12;
+            curHour = curHour != 0 ? curHour : 12;
+
+            return curHour;
+        }
+
+        public async Task<IActionResult> CancelBooking(int bookingId)
+        {
+            var bookingDetails = await unitOfWork.BookingRepo.FindWithInclude(b => b.BookingId == bookingId);
+
+            try
+            {
+                unitOfWork.NotificationRepo.Add(new Notification
+                {
+                    ApplicationUserId = (await GetCurrentUser())?.Id,
+                    Title = "Booking has been canceled",
+                    Body = $"Playground : {bookingDetails.Playground.Name} on {bookingDetails.BookedDate:d} - {bookingDetails.PlaygroundTimes}"
+                });
+                unitOfWork.BookingRepo.Delete(bookingDetails);
+                unitOfWork.Save();
+            }
+            catch (Exception e)
+            {
+                Debug.WriteLine(e);
+                return RedirectToAction("Index", "MyBookings");
+            }
+
+            return RedirectToAction("Index", "MyBookings");
         }
 
         public async Task<IActionResult> LeaveTeam(int bookingId)

@@ -31,6 +31,8 @@ namespace Models
 
         [Range(0, 9)]
         public int MaxNumOfPlayers { get; set; }
+
+        public byte Paid { get; set; }
     }
 
     public enum BookingStatus
