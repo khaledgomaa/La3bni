@@ -16,6 +16,7 @@ namespace Models
 
         [Required(ErrorMessage = "You must enter your User Name")]
         [Display(Name = "User Name")]
+        [RegularExpression(@"^[a-zA-Z0-9]+$",ErrorMessage ="User Name should contains only letters or digits")]
         [Remote(action: "Name_Unique", controller: "Account", ErrorMessage = "this Username is already taken please try a different one")]
         public string Username { get; set; }
 
@@ -51,7 +52,7 @@ namespace Models
 
         [NotMapped]
         [DisplayName("Upload Image")]
-        [Required(ErrorMessage = "You must Upload  your Photo")]
+        
         public IFormFile ImageFile { get; set; }
     }
 

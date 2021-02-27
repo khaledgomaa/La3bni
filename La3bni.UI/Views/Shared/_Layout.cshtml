@@ -73,11 +73,13 @@
 
                     @if (signInManager.IsSignedIn(User))
                     {
-                        <li class="dropdown">
-                            <a href="#" data-toggle="dropdown" class="dropdown-toggle user-action">
-                                @*<img src="https://www.tutorialrepublic.com/examples/images/avatar/2.jpg" class="avatar" alt="Avatar">*@
-                                <i class="fa fa-user" aria-hidden="true"></i>Paula Wilson <b class="caret"></b>
-                            </a>
+                        var user = userManager.GetUserAsync(User).Result;
+                      
+                 <li class="dropdown">
+                     <a href="#" data-toggle="dropdown" class="dropdown-toggle user-action">
+                         @*<img src="https://www.tutorialrepublic.com/examples/images/avatar/2.jpg" class="avatar" alt="Avatar">*@
+                         <i class="fa fa-user" aria-hidden="true"></i> &nbsp; @user.UserName   &nbsp;  <b class="caret"> </b>
+                     </a>
                             <ul class="dropdown-menu">
                                 <li><a asp-controller="Account" asp-action="myProfile"><i class="fa fa-user-o"></i> Profile</a></li>
                                 <li class="divider"></li>

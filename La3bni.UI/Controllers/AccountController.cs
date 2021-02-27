@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Models;
@@ -15,17 +16,19 @@ namespace La3bni.UI.Controllers
         public  string USERID = "";
         private readonly UserManager<ApplicationUser> userManager;
         private readonly SignInManager<ApplicationUser> signInManager;
+        private readonly RoleManager<IdentityRole> roleManager;
         private readonly ImageManager imageManager;
 
         private readonly IUnitOfWork unitOfWork;
 
         public AccountController(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager,
-            ImageManager _imageManager, IUnitOfWork _unitOfwork)
+            ImageManager _imageManager, IUnitOfWork _unitOfwork, RoleManager<IdentityRole> _roleManager)
         {
             this.userManager = userManager;
             this.signInManager = signInManager;
             imageManager = _imageManager;
             this.unitOfWork = _unitOfwork;
+            this.roleManager = _roleManager;
         }
 
         [AcceptVerbs("Get", "Post")]
@@ -49,7 +52,7 @@ namespace La3bni.UI.Controllers
             }
             else return Json(false);
         }
-
+        [Authorize]
         public IActionResult NotifactionRead(int id)
         {
             var toUnread = unitOfWork.NotificationRepo.Find(n => n.NotificationId == id).Result;
@@ -59,7 +62,7 @@ namespace La3bni.UI.Controllers
 
             return RedirectToAction("Notification");
         }
-
+        [Authorize]
         public IActionResult NotifactionDelete(int id)
         {
             var toUnread = unitOfWork.NotificationRepo.Find(n => n.NotificationId == id).Result;
@@ -69,7 +72,7 @@ namespace La3bni.UI.Controllers
 
             return RedirectToAction("Notification");
         }
-
+        [Authorize]
         public async Task<IActionResult> Notification()
         {
             var user = await userManager.GetUserAsync(User);
@@ -86,6 +89,7 @@ namespace La3bni.UI.Controllers
         }
 
         [HttpPost]
+     
         public async Task<IActionResult> Register(User user)
         {
             if (ModelState.IsValid)
@@ -98,19 +102,47 @@ namespace La3bni.UI.Controllers
                     city = user.City,
                     PhoneNumber = user.PhoneNumber,
                     ImagePath = "",
-                    //Type = user.UserType
+                    
                 };
+                if (user.ImageFile != null)
+                {
+                    string P = (imageManager.UploadFile(user.ImageFile, "AppImages"));
 
-                string P = (imageManager.UploadFile(user.ImageFile, "AppImages"));
+                    Appuser.ImagePath = P;
+                }
+                if (user.ImageFile == null)
+                {
+                   
+                    if (user.Gender==Gender.Male)
+                    Appuser.ImagePath = "manred.png";
+                    if (user.Gender == Gender.Female)
+                        Appuser.ImagePath = "woman.png";
+                }
 
-                Appuser.ImagePath = P;
                 var created = await userManager.CreateAsync(Appuser, user.Password);
                 if (created.Succeeded)
                 {
-                    await signInManager.SignInAsync(Appuser, isPersistent: false);
+                   
+                    if (user.UserType == UserType.Player)
+                    {
+                        
 
-                    USERID = Appuser.Id;
-                    return RedirectToAction("myProfile");
+                        await signInManager.SignInAsync(Appuser, isPersistent: false);
+
+                        await userManager.AddToRoleAsync(Appuser, "Player");
+                       
+                        return RedirectToAction("myProfile");
+
+
+                    }
+                    if (user.UserType == UserType.Owner)
+                    {
+                       await  userManager.AddToRoleAsync(Appuser, "Owner");
+                        await signInManager.SignInAsync(Appuser, isPersistent: false);
+                        return RedirectToAction("myProfile");
+                    }
+
+                   
                 }
                 foreach (var err in created.Errors)
                 {
@@ -127,7 +159,8 @@ namespace La3bni.UI.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> login(LogIN user)
+
+        public async Task<IActionResult> login(LogIN user, string returnUrl)
         {
             if (ModelState.IsValid)
             {
@@ -140,12 +173,20 @@ namespace La3bni.UI.Controllers
 
                 if (!(Appuser is null))
                 {
-                    var result = await signInManager.PasswordSignInAsync(Appuser.UserName, user.Password, user.rememberMe, false);
+                    var result = await signInManager.PasswordSignInAsync(Appuser.UserName, user.Password,user.rememberMe, false);
 
                     if (result.Succeeded)
                     {
-                        USERID = Appuser.Id;
+
+                        // var res = userManager.GetRolesAsync(Appuser);
+
+
+                        if (!string.IsNullOrEmpty(returnUrl))
+                        {
+                            return Redirect(returnUrl);
+                        }
                         return RedirectToAction("myProfile", Appuser);
+
                     }
 
                     ModelState.AddModelError("", "Not correct data");
@@ -158,24 +199,50 @@ namespace La3bni.UI.Controllers
             }
             return View(user);
         }
-
+       //[Authorize(Roles = "Player")]
+        [Authorize]
         public async Task<IActionResult> myProfile(ApplicationUser current)
         {
             var user = await userManager.GetUserAsync(User);
-            USERID = user.Id;
+           
             return View(user);
         }
 
+
+        [Authorize]
         public IActionResult Profile_Playgrounds(List<Playground> pgs)
         {
             return View(pgs);
         }
-
+        [Authorize]
         public async Task<IActionResult> logout()
         {
             await signInManager.SignOutAsync();
 
             return RedirectToAction("Index", "Home");
         }
+       
+        
+        [HttpPost]
+        public IActionResult EditProfile(Models.User user)
+        {
+            if (ModelState.IsValid)
+            {
+                var Appuser = new ApplicationUser
+                {
+                    UserName = user.Username,
+                    Email = user.Email,
+                    gender = user.Gender,
+                    city = user.City,
+                    PhoneNumber = user.PhoneNumber,
+                    ImagePath = "",
+
+                };
+                var e = "Yess";
+                userManager.UpdateAsync(Appuser);
+            }
+            return View(user);
+        }
+       
     }
 }

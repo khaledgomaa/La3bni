@@ -1,4 +1,5 @@
-﻿@{
+﻿@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor;
+@{
     Layout = null;
 }
 
@@ -18,7 +19,8 @@
 
     <div class="row">
         <div class="col-md-4">
-            <form asp-action="Login" enctype="multipart/form-data">
+
+            <form asp-action="Login" asp-route-returnUrl="@HttpContextAccessor.HttpContext.Request.Query["returnUrl"]" enctype="multipart/form-data">
                 <div class="user-box">
                     <div class="form-group">
 
@@ -42,13 +44,14 @@
                 <br />
                 <br />
                 <br />
-                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
 
                 <br />
+                
                 <br />
                 <div class="user-box">
                     <label for="remeber"> Remember Me </label>
-                    <input type="checkbox" id="remeber" name="rememberMe">
+                    <input asp-for="rememberMe" type="checkbox" id="remeber" name="rememberMe">
                 </div>
 
                 <div class="Linky">

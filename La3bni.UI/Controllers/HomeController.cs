@@ -15,6 +15,7 @@ using Newtonsoft.Json.Linq;
 using System.Threading.Tasks;
 using System.Net.Http;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Authorization;
 
 //public class StripeOptions
 //{
@@ -25,6 +26,7 @@ namespace La3bni.UI.Controllers
 {
     // [Route("create-checkout-session")]
     // [ApiController]
+   
     public class HomeController : Controller
     {
         private readonly ImageManager imageManager;
@@ -32,7 +34,7 @@ namespace La3bni.UI.Controllers
         private readonly IConfiguration configuration;
         private readonly IEmailRepository emailRepository;
         private readonly UserManager<ApplicationUser> userManager;
-
+       
         public HomeController(
             ImageManager _imageManager,
             IUnitOfWork unitOfwork,
@@ -64,6 +66,7 @@ namespace La3bni.UI.Controllers
             }
             return ret;
         }
+        
 
         public IActionResult GetInTouch(FeedBack feedBack)
         {
@@ -136,7 +139,7 @@ namespace La3bni.UI.Controllers
         {
             return View();
         }
-
+      
         public async Task<IActionResult> Index()
         {
             var myNews = await GetNewsAsync();

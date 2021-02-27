@@ -66,13 +66,14 @@ namespace La3bni.UI
 
             StripeConfiguration.ApiKey = configuration.GetSection("Stripe")["SecretKey"];
 
-            app.UseAuthentication();
-            app.UseAuthorization();
+            
+            
 
             app.UseStaticFiles();
 
             app.UseRouting();
-
+            app.UseAuthentication();
+            app.UseAuthorization();
             app.UseEndpoints(endpoints =>
             {
                 //endpoints.MapDefaultControllerRoute();
