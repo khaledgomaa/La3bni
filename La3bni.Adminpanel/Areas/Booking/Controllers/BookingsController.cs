@@ -18,7 +18,6 @@ namespace La3bni.Adminpanel.Areas.Booking.Controllers
         }
 
         // GET: BookingsController
-        [Route("")]
         [Route("index")]
         public ActionResult Index()
         {

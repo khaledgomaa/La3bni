@@ -30,7 +30,7 @@ namespace La3bni.Adminpanel.Areas.Admin.Controllers
         [Route("SendEmail")]
         public IActionResult SendEmail()
         {
-            ViewBag.Emails = new SelectList(context.SubscriberRepo.GetAll().Result.Select(e => e.Email));
+            ViewBag.Emails = new SelectList(context.SubscriberRepo.GetAll().Select(e => e.Email));
             return View();
         }
 

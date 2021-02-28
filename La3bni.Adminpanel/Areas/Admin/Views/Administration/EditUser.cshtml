@@ -1,0 +1,58 @@
+﻿@model Models.ViewModels.EditUserAdminPanel
+
+@{
+    ViewBag.Title = "Edit User";
+
+}
+
+<h2> Edit User </h2>
+
+<form method="post">
+    <div asp-validation-summary="All" class="text-danger"></div>
+    <div>
+        <label asp-for="Id"></label>
+        <div>
+            <input asp-for="Id" disabled />
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Email" class="control-label"></label>
+        <input asp-for="Email" class="form-control" />
+        <span asp-validation-for="Email" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="UserName" class="control-label"></label>
+        <input asp-for="UserName" class="form-control" />
+        <span asp-validation-for="UserName" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="City" class="control-label"></label>
+        <input asp-for="City" class="form-control" />
+    </div>
+
+    <div class="form-group">
+        <input type="submit" value="Update" class="btn btn-primary" />
+        <a asp-action="ListUsers"> Cancel </a>
+    </div>
+
+    <div>
+        <h3> User Roles </h3>
+
+        @if (Model.Roles.Any())
+        {
+            foreach (var role in Model.Roles)
+            {
+                <h5> @role  </h5>
+            }
+        }
+        else
+        {
+            <h5> None at the moment  </h5>
+        }
+
+        <a asp-action="ListRoles" asp-controller="Administration"> Manage Roles</a>
+    </div>
+</form>

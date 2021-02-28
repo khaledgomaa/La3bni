@@ -2,6 +2,9 @@
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Models;
+using System;
+using System.Collections.Generic;
+using System.Text;
 
 namespace Repository
 {
@@ -30,7 +33,11 @@ namespace Repository
         protected override void OnModelCreating(ModelBuilder builder)
         {
             builder.ApplyConfigurationsFromAssembly(typeof(EntityConfiguration<>).Assembly);
+
+           // builder.Entity<Booking>().HasOne(b => b.ApplicationUser).WithMany().OnDelete(DeleteBehavior.Cascade);
+
             base.OnModelCreating(builder);
         }
+
     }
 }

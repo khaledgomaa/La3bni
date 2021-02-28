@@ -1,9 +1,13 @@
 ﻿@using Repository
+@inject UserManager<ApplicationUser> userManager;
 
 @model Models.ApplicationUser
 @{
     ViewBag.Title = "User Profile";
     string imgPath = "~/AppImages/" + @Model.ImagePath;
+
+    var roles = userManager.GetRolesAsync(Model).Result.ToList();
+    string Rolee = roles[0];
 }
 
 @section Styles{
@@ -17,35 +21,40 @@
         <!-- here’s the avatar -->
         <h5>Personal Info</h5>
         <a target="_blank" href="#">
-            @*<img src="~/AppImages/21024442627571719.png" />*@
+
             <img src=@Url.Content(imgPath) />
         </a>
 
         <!-- the username -->
-        <h2>
-            UserName:  @Model.UserName
-        </h2>
-
-        <!-- and role or location -->
-        <h2>
-            @*@Model.Type*@
-        </h2>
     </header>
 
     <!-- bit of a bio; who are you? -->
+
     <div class="profile-bio">
+        <h4>
+            UserName:  @Model.UserName
+        </h4>
+
+        <p style="color: #FFD724">
+            @Rolee
+        </p>
 
         <p> Email : @Model.Email</p>
-        <p> Gender : @Model.gender</p>
-        <p> City : @Model.city</p>
+        <p> Gender : @Model.Gender</p>
+        <p> City : @Model.City</p>
         <p> Phone Number  : @Model.PhoneNumber</p>
+        <a asp-controller="Account" asp-action="EditProfile" asp-route-id="@Model.Id">
+            <img src="~/images/Account/edit-info.png" />
+        </a>
 
-        @*@if (@Model.Type == UserType.Owner){}*@
+        @if (Rolee == "Owner")
+        {
 
-        <img src="~/images/football-player.png" />
-        @Html.ActionLink("Edit play grounds", "Dash", "Account")
-        <br />
+            <a asp-controller="Account" asp-action="PlayGroundDiaplay" asp-route-id="@Model.Id">
+                <img src="~/images/Account/football-player.png" />
+            </a>
 
-        List<Playground> pgs = new List<Playground>();
+            <br />
+        }
     </div>
 </aside>

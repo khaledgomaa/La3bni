@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 
@@ -43,9 +44,9 @@ namespace Repository
             return await dbSet.FirstOrDefaultAsync(wherePredict);
         }
 
-        public virtual async Task<List<TEntity>> GetAll()
+        public virtual IQueryable<TEntity> GetAll()
         {
-            return await dbSet.ToListAsync();
+            return dbSet;
         }
 
         public virtual void Update(TEntity entityToUpdate)

@@ -1,7 +1,15 @@
 ﻿@inject SignInManager<ApplicationUser> signInManager;
 @inject UserManager<ApplicationUser> userManager;
+@inject Repository.IUnitOfWork unitOfWork;
+@inject RoleManager<IdentityRole> roleManager;
 
+@{
+    var res = unitOfWork.NotificationRepo.GetAll().ToList();
+    var notifyy = res;
+    var Unseen_count = notifyy.Count;
+    int clicked = 0;
 
+}
 <!DOCTYPE HTML>
 <html>
 <head>
@@ -24,6 +32,7 @@
             display: none;
         }
     </style>
+
     @RenderSection("Styles", false)
 </head>
 
@@ -69,25 +78,84 @@
                     </div>
                 </form>
                 <ul class="nav navbar-nav navbar-right">
-                    <li><a href="#" class="notifications"><i class="fa fa-bell-o"></i><span class="badge">1</span></a></li>
 
                     @if (signInManager.IsSignedIn(User))
                     {
-                        
-                        var currentUser = await userManager.GetUserAsync(User);
-                        
+
+                        var currentUser = userManager.GetUserAsync(User).Result;
+
+                        /*****************Notifaction****************/
+                        <li class="dropdown">
+                            @{
+                                res = unitOfWork.NotificationRepo.GetAll().ToList();
+                                notifyy = res.FindAll(n => n.ApplicationUserId == currentUser.Id).OrderByDescending(a => a.Seen == 0).ToList();
+                                Unseen_count = notifyy.FindAll(notif => notif.Seen == 0).Count();
+
+                            }
+                            <a asp-action="SeenNotifactions" asp-controller="Account" asp-route-id="@currentUser.Id" data-toggle="dropdown" class="dropdown-toggle user-action">
+                                <span class="badge" id="numOfUnseen">@Unseen_count</span><i class="fa fa-bell-o"></i>
+                            </a>
+
+                            <ul class="dropdown-menu" style="
+                                background: #E3EBEF;
+
+                                    max-height: 250px;
+                                    overflow-wrap: break-word;
+                                    word-wrap: break-word;
+                                    white-space: normal !important;
+                                    overflow: scroll;
+
+                                    ">
+                                @{
+                                    var color = "#9FB6C3";
+                                    foreach (Notification item in notifyy)
+                                    {
+                                        if (item.Seen == 0) color = "#9FB6C3";
+                                        if (item.Seen == 1) color = "#E3EBEF";
+
+                                        <div name="notification" id=" @item.NotificationId" style="background:@color; -ms-align-content:center ">
+
+                                            <li>
+                                                &nbsp; &nbsp; @item.Title
+                                            </li>
+                                            <li>
+                                                @item.Body
+                                            </li>
+                                        </div>
+                                        <li class="divider"></li>
+
+                                    }
+
+                                }
+                                <li class="divider"></li>
+                                <li><a asp-controller="Account" asp-action="Notification"><i class="fa fa-bell-o"></i> See All Notifications</a></li>
+                            </ul>
+                        </li>
+
                         <li class="dropdown">
                             <a href="#" data-toggle="dropdown" class="dropdown-toggle user-action">
-                                @*<img src="https://www.tutorialrepublic.com/examples/images/avatar/2.jpg" class="avatar" alt="Avatar">*@
 
-                                <i class="fa fa-user" aria-hidden="true"></i>@currentUser.UserName <b class="caret"></b>
+                                <i class="fa fa-user" aria-hidden="true"></i>&nbsp; @currentUser.UserName &nbsp;<b class="caret"></b>
                             </a>
+
                             <ul class="dropdown-menu">
+
                                 <li><a asp-controller="Account" asp-action="myProfile"><i class="fa fa-user-o"></i> Profile</a></li>
+                                <li><a asp-controller="Account" asp-action="EditProfile"><i class="fa fa-user-o"></i> Edit Profile</a></li>
+                                @{
+                                    if (userManager.IsInRoleAsync(currentUser, "Owner").Result)
+                                    {
+                                        <li><a asp-controller="Account" asp-action="PlayGroundDiaplay" asp-route-id="@currentUser.Id"><i class="fa fa-user-o"></i>Display Playgrounds</a></li>
+
+                                    }
+
+                                }
                                 <li class="divider"></li>
+
                                 <li><a asp-controller="MyBookings" asp-action="Index"><i class="fa fa-user-o"></i> Bookings</a></li>
                                 <li><a asp-controller="MyBookings" asp-action="Teams"><i class="fa fa-user-o"></i> Teams</a></li>
                                 <li class="divider"></li>
+
                                 <li><a asp-controller="Account" asp-action="logout"><i class="material-icons">&#xE8AC;</i> Logout</a></li>
                             </ul>
                         </li>
@@ -98,21 +166,6 @@
                         <li><a asp-controller="Account" asp-action="login">Log In</a></li>
                     }
                 </ul>
-
-                @*<div class="navbar-nav ml-auto">
-                        <a href="#" class="nav-item nav-link notifications"><i class="fa fa-bell-o"></i><span class="badge">1</span></a>
-                        <a href="#" class="nav-item nav-link messages"><i class="fa fa-envelope-o"></i><span class="badge">10</span></a></a>
-                        <div class="nav-item dropdown">
-                            <a href="#" data-toggle="dropdown" class="nav-link dropdown-toggle user-action"><img src="/examples/images/avatar/2.jpg" class="avatar" alt="Avatar"> Paula Wilson <b class="caret"></b></a>
-                            <div class="dropdown-menu">
-                                <a href="#" class="dropdown-item"><i class="fa fa-user-o"></i> Profile</a>
-                                <a href="#" class="dropdown-item"><i class="fa fa-calendar-o"></i> Calendar</a>
-                                <a href="#" class="dropdown-item"><i class="fa fa-sliders"></i> Settings</a>
-                                <div class="dropdown-divider"></div>
-                                <a href="#" class="dropdown-item"><i class="material-icons">&#xE8AC;</i> Logout</a>
-                            </div>
-                        </div>
-                    </div>*@
             </div>
         </nav>
 
@@ -126,20 +179,20 @@
                             <h3>About Us</h3>
                             <ul class="unstyled">
                                 <li>We are proud to bring you the</li>
-                                <li>most professional entertainment</li>
-                                <li>website made by five developers</li>
-                                <li>who are students in ITI, our</li>
-                                <li>website is easy to use.</li>
+                                <li>most professional stadium reservations website</li>
+                                <li>made by five developers</li>
+                                <li>who are students in ITI,</li>
+                                <li>our website is easy to use.</li>
                             </ul>
                         </section>
                         <section class="3u 6u$(medium) 12u$(small)">
-                            <h3>Culpa quia, nesciunt</h3>
+                            <h3>Quick Menu</h3>
                             <ul class="unstyled">
                                 <li><a asp-action="Index" asp-controller="Home">Home</a></li>
-                                <li><a href="#">Reiciendis dicta laboriosam enim</a></li>
-                                <li><a href="#">Corporis, non aut rerum</a></li>
-                                <li><a href="#">Laboriosam nulla voluptas, harum</a></li>
-                                <li><a href="#">Facere eligendi, inventore dolor</a></li>
+                                <li><a asp-controller="Stadiums" asp-action="Index">All Stadiums</a></li>
+                                <li><a asp-controller="Account" asp-action="myProfile">Profile</a></li>
+                                <li><a asp-controller="MyBookings" asp-action="Index">Bookings</a></li>
+                                <li><a asp-controller="MyBookings" asp-action="Teams">Teams</a></li>
                             </ul>
                         </section>
 
@@ -157,7 +210,7 @@
                             <h3>Contact Us</h3>
                             <form method="post" asp-action="GetInTouch" asp-controller="Home">
                                 <div class="text-danger"></div>
-                                <div class="field half">
+                                <div class="field half" style="padding: 0;">
                                     <input type="text" required oninput="setCustomValidity('')" oninvalid="setCustomValidity('Please enter your Name')" name="Name" placeholder="Name" />
                                 </div>
                                 <div class="field half">
@@ -210,5 +263,33 @@
         <script src="~/assets/js/main.js"></script>
         <script src="~/assets/js/searchbox.js"></script>
     </div>
+    <script>
+        var notificationElements = document.getElementsByName("notification");
+        for (let i = 0; i < notificationElements.length; i++) {
+            notificationElements[i].addEventListener("click", function () {
+                updateNotificationStatus(notificationElements[i].id);
+            });
+        }
+
+        function updateNotificationStatus(notificationId) {
+            $.ajax({
+                type: "get",
+                url: "https://localhost:44379/Account/UpdateNOtificationStatus",
+                data:
+                {
+                    notificationId: notificationId
+                },
+                success: function (response) {
+                    console.log("Updated Notification");
+                    document.getElementById(notificationId).style.background = "#E3EBEF";
+                    var curNum = parseInt(document.getElementById("numOfUnseen").innerText) - 1;
+                    document.getElementById("numOfUnseen").innerText = curNum;
+                },
+                error: function (req, status, error) {
+                    //console.log(msg);
+                }
+            });
+        }
+    </script>
 </body>
 </html>

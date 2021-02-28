@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Models;
 using Repository;
@@ -10,6 +11,7 @@ using System.Threading.Tasks;
 
 namespace La3bni.UI.Controllers
 {
+    [Authorize]
     public class MyBookingsController : Controller
     {
         private readonly IUnitOfWork unitOfWork;
@@ -27,7 +29,7 @@ namespace La3bni.UI.Controllers
             int curHour = GetCurrentHour();
             var myBookings = unitOfWork.BookingRepo.GetAllWithInclude()
                                                    .Where(a => a.ApplicationUserId == userId
-                                                        && a.BookedDate.Date > DateTime.Now.Date
+                                                        && a.BookedDate.Date >= DateTime.Now.Date
                                                         && a.PlaygroundTimes.From.Hour > curHour);
             return View(myBookings);
         }
@@ -38,7 +40,7 @@ namespace La3bni.UI.Controllers
             int curHour = GetCurrentHour();
             var bookingDetails = unitOfWork.BookingTeamRepo.GetAllIQueryableWithInclude()
                                            .Where(a => a.ApplicationUserId == userId
-                                           && a.Booking.BookedDate.Date > DateTime.Now.Date
+                                           && a.Booking.BookedDate.Date >= DateTime.Now.Date
                                            && a.Booking.PlaygroundTimes.From.Hour > curHour);
 
             return View(bookingDetails);

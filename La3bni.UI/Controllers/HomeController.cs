@@ -9,6 +9,7 @@ using Newtonsoft.Json.Linq;
 using System.Threading.Tasks;
 using System.Net.Http;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Authorization;
 
 namespace La3bni.UI.Controllers
 {
@@ -56,7 +57,7 @@ namespace La3bni.UI.Controllers
         {
             unitOfwork.FeedBackRepo.Add(feedBack);
             //add his email to subscribers if he is not already a subscriber
-            if (!unitOfwork.SubscriberRepo.GetAll().Result.Any(d => d.Email == feedBack.Email))
+            if (!unitOfwork.SubscriberRepo.GetAll().Any(d => d.Email == feedBack.Email))
                 unitOfwork.SubscriberRepo.Add(new Subscriber() { Email = feedBack.Email });
             unitOfwork.Save();
             emailRepository.sendEmail(
@@ -66,13 +67,71 @@ namespace La3bni.UI.Controllers
             return RedirectToAction("Index");
         }
 
+        public IActionResult Charge()
+        {
+            return View();
+        }
+
+        //[HttpPost]
+        //public IActionResult Charge(string notUsedInput)
+        //{
+        //    //PaymentMehtod.Charge(stripeEmail, stripeToken);
+        //    var domain = configuration["Domain"];
+        //    var options = new SessionCreateOptions
+        //    {
+        //        PaymentMethodTypes = new List<string>
+        //        {
+        //          "card",
+        //        },
+        //        LineItems = new List<SessionLineItemOptions>
+        //        {
+        //          new SessionLineItemOptions
+        //          {
+        //            PriceData = new SessionLineItemPriceDataOptions
+        //            {
+        //              UnitAmount = 100,
+        //              Currency = "usd",
+        //              ProductData = new SessionLineItemPriceDataProductDataOptions
+        //              {
+        //                Name = "Stubborn Attachments",
+        //              },
+        //            },
+        //            Quantity = 1,
+        //          },
+        //        },
+        //        Mode = "payment",
+        //        SuccessUrl = domain + "/OrderSuccess?session_id={CHECKOUT_SESSION_ID}",
+        //        CancelUrl =  domain + "/cancel.html",
+        //    };
+        //    var service = new SessionService();
+        //    Session session = service.Create(options);
+        //    return Json(new { id = session.Id });
+
+        //    //return View();
+        //}
+
+        //public ActionResult OrderSuccess([FromQuery] string session_id)
+        //{
+        //    var sessionService = new SessionService();
+        //    Session session = sessionService.Get(session_id);
+
+        //    var customerService = new CustomerService();
+        //    Customer customer = customerService.Get(session.CustomerId);
+
+        //    return Content($"<html><body><h1>Thanks for your order, {customer.Name}!</h1></body></html>");
+        //}
+        public IActionResult Cancel()
+        {
+            return View();
+        }
+
         public async Task<IActionResult> Index()
         {
             var myNews = await GetNewsAsync();
             dynamic jsonData = JObject.Parse(myNews);
             ViewBag.articles = jsonData.articles;
 
-            ViewBag.Playgrounds = unitOfwork.PlayGroundRepo.GetAll().Result;
+            ViewBag.Playgrounds = unitOfwork.PlayGroundRepo.GetAll().ToList();
             return View();
         }
 
@@ -99,7 +158,7 @@ namespace La3bni.UI.Controllers
 
         public JsonResult getPlaygroundsInJsonFormats()
         {
-            return Json(unitOfwork.PlayGroundRepo.GetAll().Result.ToList());
+            return Json(unitOfwork.PlayGroundRepo.GetAll().ToList());
         }
     }
 }
