@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Models;
@@ -6,6 +7,7 @@ using Repository;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace La3bni.UI.Controllers
@@ -18,14 +20,16 @@ namespace La3bni.UI.Controllers
         private readonly ImageManager imageManager;
 
         private readonly IUnitOfWork unitOfWork;
+        private readonly IEmailRepository emailRepository;
 
         public AccountController(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager,
-            ImageManager _imageManager, IUnitOfWork _unitOfwork)
+            ImageManager _imageManager, IUnitOfWork _unitOfwork,IEmailRepository emailRepository)
         {
             this.userManager = userManager;
             this.signInManager = signInManager;
             imageManager = _imageManager;
             this.unitOfWork = _unitOfwork;
+            this.emailRepository = emailRepository;
         }
 
         [AcceptVerbs("Get", "Post")]
@@ -98,6 +102,7 @@ namespace La3bni.UI.Controllers
                     city = user.City,
                     PhoneNumber = user.PhoneNumber,
                     ImagePath = "",
+                    SecurityStamp = new Guid().ToString(),
                     //Type = user.UserType
                 };
 
@@ -108,9 +113,13 @@ namespace La3bni.UI.Controllers
                 if (created.Succeeded)
                 {
                     await signInManager.SignInAsync(Appuser, isPersistent: false);
+                    var confirmationToken =await userManager.GenerateEmailConfirmationTokenAsync(Appuser);
+                    var confirmationLink = Url.Action("ConfirmEmail", "Account", new { UserId = Appuser.Id, token = confirmationToken }, Request.Scheme);
+                    emailRepository.sendEmail("La3bniKoora Email Confirmation",
+                        $"Please confirm your Email Address. click the link below\n{confirmationLink}", new List<string> { Appuser.Email });
 
                     USERID = Appuser.Id;
-                    return RedirectToAction("myProfile");
+                    return RedirectToAction("myProfile",user);
                 }
                 foreach (var err in created.Errors)
                 {
@@ -120,14 +129,142 @@ namespace La3bni.UI.Controllers
             return View(user);
         }
 
+        public async Task<IActionResult> ConfirmEmail(string UserId, string token)
+        {
+            if (UserId == null || token == null)
+            {
+                return View("Error");
+            }
+            else
+            {
+                var user =await userManager.FindByIdAsync(UserId);
+                if (user == null)
+                {
+                    ViewBag.ErrorTitle = "User Not found!";
+                    ViewBag.ErrorMessage = $"User Id: {UserId} Not found! " +
+                        $"Please register to be able to use our services.";
+                    return View("Error");
+                }
+                else
+                {
+                    IdentityResult result = await userManager.ConfirmEmailAsync(user, token);
+                    if (result.Succeeded)
+                    {
+                        user.EmailConfirmed = true;
+
+                        await userManager.UpdateAsync(user);
+
+                        if (!signInManager.IsSignedIn(User))
+                            await signInManager.SignInAsync(user, isPersistent: false);
+                        return RedirectToAction("myProfile", user);
+
+                    }
+                    else
+                    {
+                        ViewBag.ErrorTitle = "Email Confirmation Failed!";
+                        ViewBag.ErrorMessage = "Email Confirmation Failed, Please sign in";
+                        return View("Error");
+
+                    }
+                }
+            }
+
+        }
+
+
+        [HttpPost]
+        public IActionResult ExternalLogin(string provider)
+        {
+            var redirectURL = Url.Action("ExternalLoginCallBack", "Account");
+            var properties = signInManager.ConfigureExternalAuthenticationProperties(provider, redirectURL);
+
+            return new ChallengeResult(provider, properties);
+        }
+
+        public async Task<IActionResult> ExternalLoginCallBackAsync(string remoteError = null)
+        {
+            if(remoteError != null)
+            {
+                ModelState.AddModelError(string.Empty, $"Error from your provider: {remoteError}");
+                return View("login");
+            }
+            var info = await signInManager.GetExternalLoginInfoAsync();
+            if(info == null)
+            {
+                ModelState.AddModelError(string.Empty, "Error during loading you information. Please call your provider");
+                return View("login");
+            }
+            var signInResult =await signInManager.ExternalLoginSignInAsync(info.LoginProvider,
+                                info.ProviderKey, isPersistent: false, bypassTwoFactor: true);
+            if(signInResult.Succeeded)
+            {
+                var existUser =await userManager.FindByEmailAsync(info.Principal.FindFirstValue(ClaimTypes.Email));
+                return RedirectToAction("myProfile",existUser);
+            }
+            else //There is no corresponding row in asp userlogins table
+            { //Check if he has a local account in our system, then link both external and the local account together
+                var email = info.Principal.FindFirstValue(ClaimTypes.Email);
+                if(email != null)//we need his Email to sign him in our system
+                {
+                    var user =await userManager.FindByEmailAsync(email);
+                    if (user == null)
+                    {
+                        var usrGender = (info.Principal.FindFirstValue(ClaimTypes.Gender) == "Male") ? 1 : 0;
+                        user = new ApplicationUser
+                        {
+                            UserName = info.Principal.FindFirstValue(ClaimTypes.Email),
+                            Email = info.Principal.FindFirstValue(ClaimTypes.Email),
+                            SecurityStamp = new Guid().ToString(),
+                            gender = (Gender)usrGender,
+                            ImagePath = "man41.png",
+                            city = City.Alexandria,
+                            EmailConfirmed = true
+                        };
+
+                        var created =await userManager.CreateAsync(user);
+                        if (created.Succeeded)
+                        {
+                            var insertingNewLoginResult = await userManager.AddLoginAsync(user, info);
+                            if (insertingNewLoginResult.Succeeded)
+                            {
+                                await signInManager.SignInAsync(user, isPersistent: false);
+                                return RedirectToAction("myProfile");
+                            }
+                        }
+                        else
+                        {
+
+                            ViewBag.ErrorTitle = $"Please sign in with  {info.LoginProvider}" +
+                                $"Sorry we can't sign you in using your {info.LoginProvider} account";
+                            return View("Error");
+                        }
+                    }
+                    else
+                    {
+                        var insertingNewLoginResult =await userManager.AddLoginAsync(user, info);
+                        if (insertingNewLoginResult.Succeeded)
+                        {
+                            await signInManager.SignInAsync(user, isPersistent: false);
+                            return RedirectToAction("myProfile");
+                        }
+                    }
+                }//If Email is null then we can't register him
+                ViewBag.ErrorTitle = $"Email wan't found!";
+                ViewBag.ErrorMessage = $"Your Email Wasn't received from {info.LoginProvider}" +
+                    $"Sorry we can't sign you in using your {info.LoginProvider} account";
+                return View("Error");
+            } 
+        }
+
         [HttpGet]
         public IActionResult login()
         {
+            ViewBag.ExternalLogins = signInManager.GetExternalAuthenticationSchemesAsync().Result.ToList();
             return View();
         }
 
         [HttpPost]
-        public async Task<IActionResult> login(LogIN user)
+        public async Task<IActionResult> login(LogIN user, string returnUrl)
         {
             if (ModelState.IsValid)
             {
@@ -145,7 +282,11 @@ namespace La3bni.UI.Controllers
                     if (result.Succeeded)
                     {
                         USERID = Appuser.Id;
-                        return RedirectToAction("myProfile", Appuser);
+                        if (!string.IsNullOrEmpty(returnUrl))
+                        {
+                            return Redirect("/" + returnUrl);
+                        }
+                        return RedirectToAction(nameof(Index), "Home");
                     }
 
                     ModelState.AddModelError("", "Not correct data");
