@@ -13,7 +13,6 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace La3bni.UI.Controllers
 {
-
     public class HomeController : Controller
     {
         private readonly ImageManager imageManager;
@@ -21,7 +20,7 @@ namespace La3bni.UI.Controllers
         private readonly IConfiguration configuration;
         private readonly IEmailRepository emailRepository;
         private readonly UserManager<ApplicationUser> userManager;
-       
+
         public HomeController(
             ImageManager _imageManager,
             IUnitOfWork unitOfwork,
@@ -53,7 +52,6 @@ namespace La3bni.UI.Controllers
             }
             return ret;
         }
-        
 
         public IActionResult GetInTouch(FeedBack feedBack)
         {
@@ -68,7 +66,6 @@ namespace La3bni.UI.Controllers
                  new List<string>() { "mohmedshawky2019@gmail.com" });
             return RedirectToAction("Index");
         }
-
 
         public IActionResult Charge()
         {
@@ -127,7 +124,6 @@ namespace La3bni.UI.Controllers
         {
             return View();
         }
-      
 
         public async Task<IActionResult> Index()
         {
@@ -139,7 +135,7 @@ namespace La3bni.UI.Controllers
             return View();
         }
 
-         public async Task<string> GetNewsAsync()
+        public async Task<string> GetNewsAsync()
         {
             var client = new HttpClient();
             var request = new HttpRequestMessage

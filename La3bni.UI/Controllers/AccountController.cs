@@ -38,7 +38,6 @@ namespace La3bni.UI.Controllers
             this.roleManager = _roleManager;
 
             this.emailRepository = emailRepository;
-
         }
 
         [AcceptVerbs("Get", "Post")]
@@ -58,11 +57,11 @@ namespace La3bni.UI.Controllers
             var created = await userManager.FindByNameAsync(Username);
             if (created is null)
             {
-               
                 return Json(true);
             }
             else return Json(false);
         }
+
         [Authorize]
         public IActionResult NotifactionRead(int id)
         {
@@ -73,6 +72,7 @@ namespace La3bni.UI.Controllers
 
             return RedirectToAction("Notification");
         }
+
         [Authorize]
         public IActionResult NotifactionDelete(int id)
         {
@@ -83,6 +83,7 @@ namespace La3bni.UI.Controllers
 
             return RedirectToAction("Notification");
         }
+
         [Authorize]
         public async Task<IActionResult> Notification()
         {
@@ -100,7 +101,6 @@ namespace La3bni.UI.Controllers
         }
 
         [HttpPost]
-
         public async Task<IActionResult> Register(User user)
         {
             if (ModelState.IsValid)
@@ -115,7 +115,6 @@ namespace La3bni.UI.Controllers
                     ImagePath = "",
 
                     SecurityStamp = new Guid().ToString(),
-
                 };
                 if (user.ImageFile != null)
                 {
@@ -125,7 +124,6 @@ namespace La3bni.UI.Controllers
                 }
                 if (user.ImageFile == null)
                 {
-
                     if (user.Gender == Gender.Male)
                         Appuser.ImagePath = "manred.png";
                     if (user.Gender == Gender.Female)
@@ -135,19 +133,13 @@ namespace La3bni.UI.Controllers
                 var created = await userManager.CreateAsync(Appuser, user.Password);
                 if (created.Succeeded)
                 {
-
-
                     if (user.UserType == UserType.Player)
                     {
-
-
                         await signInManager.SignInAsync(Appuser, isPersistent: false);
 
                         await userManager.AddToRoleAsync(Appuser, "Player");
 
                         return RedirectToAction("myProfile");
-
-
                     }
                     if (user.UserType == UserType.Owner)
                     {
@@ -155,7 +147,6 @@ namespace La3bni.UI.Controllers
                         await signInManager.SignInAsync(Appuser, isPersistent: false);
                         return RedirectToAction("myProfile");
                     }
-
 
                     await signInManager.SignInAsync(Appuser, isPersistent: false);
                     var confirmationToken = await userManager.GenerateEmailConfirmationTokenAsync(Appuser);
@@ -165,11 +156,10 @@ namespace La3bni.UI.Controllers
 
                     USERID = Appuser.Id;
                     return RedirectToAction("myProfile", user);
-
                 }
                 //foreach (var err in created.Errors)
                 //{
-                    ModelState.AddModelError("", "your data has something wrong");
+                ModelState.AddModelError("", "your data has something wrong");
                 //}
             }
             return View(user);
@@ -203,20 +193,16 @@ namespace La3bni.UI.Controllers
                         if (!signInManager.IsSignedIn(User))
                             await signInManager.SignInAsync(user, isPersistent: false);
                         return RedirectToAction("myProfile", user);
-
                     }
                     else
                     {
                         ViewBag.ErrorTitle = "Email Confirmation Failed!";
                         ViewBag.ErrorMessage = "Email Confirmation Failed, Please sign in";
                         return View("Error");
-
                     }
                 }
             }
-
         }
-
 
         [HttpPost]
         public IActionResult ExternalLogin(string provider)
@@ -279,7 +265,6 @@ namespace La3bni.UI.Controllers
                         }
                         else
                         {
-
                             ViewBag.ErrorTitle = $"Please sign in with  {info.LoginProvider}" +
                                 $"Sorry we can't sign you in using your {info.LoginProvider} account";
                             return View("Error");
@@ -310,7 +295,6 @@ namespace La3bni.UI.Controllers
         }
 
         [HttpPost]
-
         public async Task<IActionResult> login(LogIN user, string returnUrl)
         {
             if (ModelState.IsValid)
@@ -328,22 +312,17 @@ namespace La3bni.UI.Controllers
 
                     if (result.Succeeded)
                     {
-
-
-
                         if (!string.IsNullOrEmpty(returnUrl))
                         {
                             return Redirect(returnUrl);
                         }
-                        
 
-                       
                         if (!string.IsNullOrEmpty(returnUrl))
                         {
                             return Redirect("/" + returnUrl);
                         }
                         return RedirectToAction(nameof(Index), "Home");
-                       // return RedirectToAction("myProfile", Appuser);
+                        // return RedirectToAction("myProfile", Appuser);
                     }
 
                     ModelState.AddModelError("", "Not correct data");
@@ -356,6 +335,7 @@ namespace La3bni.UI.Controllers
             }
             return View(user);
         }
+
         //[Authorize(Roles = "Player")]
         [Authorize]
         public async Task<IActionResult> myProfile(ApplicationUser current)
@@ -365,15 +345,15 @@ namespace La3bni.UI.Controllers
             return View(user);
         }
 
-
         [Authorize]
         public IActionResult PlayGroundDiaplay(string id)
         {
-           var AllBg= unitOfWork.PlayGroundRepo.GetAll().Result;
-            List<Models.Playground> Only_MyBg =AllBg.FindAll(bg => bg.ApplicationUserId == id);
-            
+            var AllBg = unitOfWork.PlayGroundRepo.GetAll().Result;
+            List<Models.Playground> Only_MyBg = AllBg.FindAll(bg => bg.ApplicationUserId == id);
+
             return View(Only_MyBg);
         }
+
         [Authorize]
         public async Task<IActionResult> logout()
         {
@@ -381,11 +361,23 @@ namespace La3bni.UI.Controllers
 
             return RedirectToAction("Index", "Home");
         }
-        
-               [Authorize]
-        public  IActionResult SeenNotifactions(List<Notification> id )
-        {
 
+        [Authorize]
+        public void UpdateNOtificationStatus(int notificationId)
+        {
+            Notification notification = unitOfWork.NotificationRepo.Find(n => n.NotificationId == notificationId)?.Result;
+
+            if (notification?.Seen == 0)
+            {
+                notification.Seen = 1; // to make it seen
+                unitOfWork.NotificationRepo.Update(notification);
+                unitOfWork.Save();
+            }
+        }
+
+        [Authorize]
+        public IActionResult SeenNotifactions(List<Notification> id)
+        {
             foreach (Notification item in id)
             {
                 item.Seen = 1;
@@ -394,16 +386,16 @@ namespace La3bni.UI.Controllers
 
             unitOfWork.Save();
 
-                return RedirectToAction("Home", "Index");
+            return RedirectToAction("Home", "Index");
         }
+
         [HttpPost]
         public async Task<IActionResult> EditProfile(EditUser user)
         {
-           
             if (ModelState.IsValid)
             {
                 var Appuser = await userManager.GetUserAsync(User);
-              var correct_pass=await  userManager.CheckPasswordAsync(Appuser, user.Old_Password);
+                var correct_pass = await userManager.CheckPasswordAsync(Appuser, user.Old_Password);
                 if (!correct_pass)
                 {
                     ModelState.AddModelError("", "Wrong Password");
@@ -412,7 +404,7 @@ namespace La3bni.UI.Controllers
                 if (Appuser.UserName != user.Username)
                 {
                     JsonResult NewUserName = (JsonResult)Name_Unique(user.Username).Result;
-                    if (NewUserName.Value.ToString()!="true")
+                    if (NewUserName.Value.ToString() != "true")
                     {
                         ModelState.AddModelError("", "Not valid user name ");
                         return View(user);
@@ -428,9 +420,9 @@ namespace La3bni.UI.Controllers
                         return View(user);
                     }
                 }
-                if (user.ConfirmPassword != null && user.NewPassword!=string.Empty&& user.NewPassword != null)
+                if (user.ConfirmPassword != null && user.NewPassword != string.Empty && user.NewPassword != null)
                 {
-                    var password_correct=await userManager.ChangePasswordAsync(Appuser, user.Old_Password, user.NewPassword);
+                    var password_correct = await userManager.ChangePasswordAsync(Appuser, user.Old_Password, user.NewPassword);
                     if (!password_correct.Succeeded)
                     {
                         ModelState.AddModelError("", "Wrong Password");
@@ -442,7 +434,7 @@ namespace La3bni.UI.Controllers
                 Appuser.gender = user.Gender;
                 Appuser.city = user.City;
                 Appuser.PhoneNumber = user.PhoneNumber;
-               // Appuser.ImagePath = user.ImagePath;
+                // Appuser.ImagePath = user.ImagePath;
 
                 if (user.ImageFile != null)
                 {
@@ -450,7 +442,6 @@ namespace La3bni.UI.Controllers
 
                     Appuser.ImagePath = P;
                 }
-                
 
                 await userManager.UpdateAsync(Appuser);
                 return RedirectToAction("myProfile", user);
@@ -470,10 +461,8 @@ namespace La3bni.UI.Controllers
                 City = Appuser.city,
                 PhoneNumber = Appuser.PhoneNumber,
                 ImagePath = Appuser.ImagePath,
-
             };
             return View(user);
         }
-
     }
 }

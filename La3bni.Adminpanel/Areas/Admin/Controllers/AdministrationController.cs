@@ -13,8 +13,6 @@ using Newtonsoft.Json;
 
 using System.Diagnostics;
 
-
-
 namespace La3bni.Adminpanel.Areas.Admin.Controllers
 {
     [Area("Admin")]
@@ -237,7 +235,7 @@ namespace La3bni.Adminpanel.Areas.Admin.Controllers
 
             var userClaims = await userManager.GetClaimsAsync(user);
             var userRoles = await userManager.GetRolesAsync(user);
-            var model = new EditUser
+            var model = new EditUserAdminPanel
             {
                 Id = user.Id,
                 Email = user.Email,
@@ -245,19 +243,16 @@ namespace La3bni.Adminpanel.Areas.Admin.Controllers
                 City = user.city,
                 Claims = userClaims.Select(c => c.Value).ToList(),
                 Roles = userRoles
-
             };
 
             return View(model);
         }
 
-
         [HttpPost]
         [Route("EditUser")]
-        public async Task<IActionResult> EditUser(EditUser umodel)
+        public async Task<IActionResult> EditUser(EditUserAdminPanel umodel)
         {
             var user = await userManager.FindByIdAsync(umodel.Id);
-
 
             if (user == null)
             {
@@ -280,11 +275,7 @@ namespace La3bni.Adminpanel.Areas.Admin.Controllers
                 {
                     ModelState.AddModelError("", error.Description);
                 }
-
-
             }
-
-
 
             return View(umodel);
         }
@@ -295,7 +286,7 @@ namespace La3bni.Adminpanel.Areas.Admin.Controllers
         {
             ApplicationUser user = await userManager.FindByIdAsync(id);
 
-            List<Models.Booking> All_bookings = await unitOfWork.BookingRepo.GetAllWithInclude();
+            List<Models.Booking> All_bookings = unitOfWork.BookingRepo.GetAllWithInclude().ToList();
 
             List<Models.Playground> All_playGrounds = await unitOfWork.PlayGroundRepo.GetAll();
             if (All_bookings != null)
@@ -304,7 +295,7 @@ namespace La3bni.Adminpanel.Areas.Admin.Controllers
                 {
                     if (book.ApplicationUserId == id)
                     {
-                         unitOfWork.BookingRepo.Delete(book);
+                        unitOfWork.BookingRepo.Delete(book);
                     }
                 }
                 unitOfWork.Save();
@@ -322,17 +313,13 @@ namespace La3bni.Adminpanel.Areas.Admin.Controllers
                 unitOfWork.Save();
             }
 
-
-
             if (user == null)
             {
                 ViewBag.ErrorMsg = $"User with Id = {id} Cannot be found";
                 return View("NotFound");
             }
-            
             else
             {
-
                 var res = await userManager.DeleteAsync(user);
 
                 if (res.Succeeded)
@@ -344,19 +331,15 @@ namespace La3bni.Adminpanel.Areas.Admin.Controllers
                 {
                     ModelState.AddModelError("", error.Description);
                 }
-
-
             }
             return View("ListUsers");
         }
-
 
         [HttpPost]
         [Route("DeleteRole")]
         public async Task<IActionResult> DeleteRole(string id)
         {
             var role = await roleManager.FindByIdAsync(id);
-
 
             if (role == null)
             {
@@ -365,7 +348,6 @@ namespace La3bni.Adminpanel.Areas.Admin.Controllers
             }
             else
             {
-
                 var res = await roleManager.DeleteAsync(role);
 
                 if (res.Succeeded)
@@ -377,11 +359,8 @@ namespace La3bni.Adminpanel.Areas.Admin.Controllers
                 {
                     ModelState.AddModelError("", error.Description);
                 }
-
-
             }
             return View("ListRoles");
         }
-
     }
 }

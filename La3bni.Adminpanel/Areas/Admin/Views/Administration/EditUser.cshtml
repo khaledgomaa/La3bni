@@ -1,4 +1,4 @@
-﻿@model Models.EditUser
+﻿@model Models.ViewModels.EditUserAdminPanel
 
 @{
     ViewBag.Title = "Edit User";
@@ -6,7 +6,6 @@
 }
 
 <h2> Edit User </h2>
-
 
 <form method="post">
     <div asp-validation-summary="All" class="text-danger"></div>
@@ -32,7 +31,6 @@
     <div class="form-group">
         <label asp-for="City" class="control-label"></label>
         <input asp-for="City" class="form-control" />
-        
     </div>
 
     <div class="form-group">
@@ -56,9 +54,5 @@
         }
 
         <a asp-action="ListRoles" asp-controller="Administration"> Manage Roles</a>
-
     </div>
-
-   
 </form>
-
