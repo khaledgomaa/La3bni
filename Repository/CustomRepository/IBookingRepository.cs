@@ -10,7 +10,7 @@ namespace Repository.IBookingRepository
 {
     public interface IBookingRepository
     {
-        public Task<List<Booking>> GetAllWithInclude();
+        public IQueryable<Booking> GetAllWithInclude();
 
         public Task<Booking> FindWithInclude(Expression<Func<Booking, bool>> wherePredict);
     }

@@ -1,8 +1,10 @@
 using La3bni.UI.Payment;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -10,10 +12,6 @@ using Microsoft.Extensions.Hosting;
 using Models;
 using Repository;
 using Stripe;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace La3bni.UI
 {
@@ -28,6 +26,7 @@ namespace La3bni.UI
 
         // This method gets called by the runtime. Use this method to add services to the container.
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
+
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllersWithViews();
@@ -38,9 +37,9 @@ namespace La3bni.UI
 
             services.AddScoped<IUnitOfWork, UnitOfWork>();
 
-            services.AddScoped<ImageManager, ImageManager>();
-
             services.AddScoped<IEmailRepository, EmailRepository>();
+
+            services.AddScoped<ImageManager, ImageManager>();
 
             services.AddIdentity<ApplicationUser, IdentityRole>(options =>
             {
@@ -53,6 +52,17 @@ namespace La3bni.UI
             .AddEntityFrameworkStores<La3bniContext>()
             .AddDefaultTokenProviders();
 
+            services.AddAuthentication()
+                .AddGoogle(opt =>
+                {
+                    opt.ClientId = "370639406913-mvjdn4trffvdo9sciptf26ve3qqaumpv.apps.googleusercontent.com";
+                    opt.ClientSecret = "2nLuKM6LRo09WEiONbE9wcpa";
+                })
+                .AddFacebook(opt =>
+                {
+                    opt.ClientId = "691976331484726";
+                    opt.ClientSecret = "7ee0514ba330aaf2cf97348fbaf11d86";
+                });
             services.Configure<StripeSettings>(configuration.GetSection("Stripe"));
         }
 
@@ -63,17 +73,29 @@ namespace La3bni.UI
             {
                 app.UseDeveloperExceptionPage();
             }
+            else
+            {
+                app.UseExceptionHandler("/Error/{0}");
+                app.UseStatusCodePagesWithReExecute("/Error/{0}");
+            }
 
             StripeConfiguration.ApiKey = configuration.GetSection("Stripe")["SecretKey"];
 
-            
-            
 
             app.UseStaticFiles();
 
             app.UseRouting();
             app.UseAuthentication();
             app.UseAuthorization();
+
+            app.UseStaticFiles();
+
+            app.UseRouting();
+
+            app.UseAuthentication();
+
+            app.UseAuthorization();
+
             app.UseEndpoints(endpoints =>
             {
                 //endpoints.MapDefaultControllerRoute();

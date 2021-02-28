@@ -1,0 +1,39 @@
+﻿@model IEnumerable<BookingTeam>
+@inject IConfiguration config
+
+<link rel="stylesheet" href="~/Booking/css/teams.css" />
+
+<div class="container">
+    <div class="row" style="position: relative;left: 16%;">
+        <div class="col-xs-8">
+            <div class="panel panel-info">
+                <div class="panel-heading">
+                </div>
+                <div class="panel-body">
+                    @foreach (var bookingDetails in Model)
+                    {
+                        <form asp-action="LeaveTeam" asp-controller="MyBookings" asp-route-bookingId="@bookingDetails.BookingId">
+                            <div class="row pad-elements">
+                                <div class="col-xs-2">
+                                    <img class="img-responsive" src="@string.Concat(@config.GetSection("AdminPanelUrl").Value,bookingDetails.Booking.Playground.ImagePath)">
+                                </div>
+                                <div class="col-xs-2">
+                                    <h4 class="product-name"><strong>@bookingDetails.Booking.Playground.Name</strong></h4>
+                                </div>
+                                <div class="col-xs-2">
+                                    <h4 class="product-name"><strong>@bookingDetails.Booking.BookedDate.ToString("d")</strong></h4>
+                                </div>
+                                <div class="col-xs-4">
+                                    <h4 class="product-name"><strong>@bookingDetails.Booking.PlaygroundTimes</strong></h4>
+                                </div>
+                                <div class="col-xs-2 btnStyle">
+                                    <input type="submit" style="padding:0" value="Leave Team" class="btn btn-danger btn-block" />
+                                </div>
+                            </div>
+                        </form>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

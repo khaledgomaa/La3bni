@@ -2,6 +2,7 @@
 using Models;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
@@ -17,12 +18,11 @@ namespace Repository.IBookingRepository
             la3BniContext = _la3BniContext;
         }
 
-        public async Task<List<Booking>> GetAllWithInclude()
+        public IQueryable<Booking> GetAllWithInclude()
         {
-            return await la3BniContext.Bookings.Include(b => b.ApplicationUser)
+            return la3BniContext.Bookings.Include(b => b.ApplicationUser)
                                         .Include(b => b.Playground)
-                                        .Include(b => b.PlaygroundTimes)
-                                        .ToListAsync();
+                                        .Include(b => b.PlaygroundTimes);
         }
 
         public async Task<Booking> FindWithInclude(Expression<Func<Booking, bool>> wherePredict)

@@ -21,7 +21,7 @@
             <!-- here’s the avatar -->
             <h5>Personal Info</h5>
             <a target="_blank" href="#">
-                @*<img src="~/AppImages/21024442627571719.png" />*@
+                
                 <img src=@Url.Content(imgPath) />
             </a>
 
@@ -44,25 +44,26 @@
             <p> Gender : @Model.gender</p>
             <p> City : @Model.city</p>
             <p> Phone Number  : @Model.PhoneNumber</p>
-            <a  asp-controller="Account" asp-action="EditProfile" asp-route-id="@Model.Id" >
+            <a asp-controller="Account" asp-action="EditProfile" asp-route-id="@Model.Id">
                 <img src="~/images/Account/edit-info.png" />
             </a>
-            
 
-            @Html.ActionLink("Edit your profile", "EditProfile", "Account")
+
+
 
 
             @if (Rolee == "Owner")
             {
+                
+                <a asp-controller="Account" asp-action="PlayGroundDiaplay" asp-route-id="@Model.Id">
+                    <img src="~/images/Account/football-player.png" />
+                </a>
 
 
-                <img src="~/images/Account/football-player.png" />
-                @Html.ActionLink("Your play grounds", "DisplayPlayGround", "Account")
-                //    List<Playground>
-                //pgs = new List<Playground>
-                //    ();
+               
+
                 <br />
-            }
+                }
 
         </div>
     </aside>

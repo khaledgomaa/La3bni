@@ -1,15 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Models;
 using Repository;
-using Microsoft.EntityFrameworkCore.SqlServer;
 using System;
-using System.IO;
-using Microsoft.AspNetCore.Hosting;
 using System.Linq;
 using System.Collections.Generic;
-
-//using Stripe;
-//using Stripe.Checkout;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json.Linq;
 using System.Threading.Tasks;
@@ -17,16 +11,9 @@ using System.Net.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Authorization;
 
-//public class StripeOptions
-//{
-//    public string option { get; set; }
-//}
-
 namespace La3bni.UI.Controllers
 {
-    // [Route("create-checkout-session")]
-    // [ApiController]
-   
+
     public class HomeController : Controller
     {
         private readonly ImageManager imageManager;
@@ -81,6 +68,7 @@ namespace La3bni.UI.Controllers
                  new List<string>() { "mohmedshawky2019@gmail.com" });
             return RedirectToAction("Index");
         }
+
 
         public IActionResult Charge()
         {
@@ -140,6 +128,7 @@ namespace La3bni.UI.Controllers
             return View();
         }
       
+
         public async Task<IActionResult> Index()
         {
             var myNews = await GetNewsAsync();
@@ -147,23 +136,6 @@ namespace La3bni.UI.Controllers
             ViewBag.articles = jsonData.articles;
 
             ViewBag.Playgrounds = unitOfwork.PlayGroundRepo.GetAll().Result;
-            return View();
-        }
-
-        public IActionResult Create()
-        {
-            return View();
-        }
-
-        [HttpPost]
-        public IActionResult Create(Playground playground)
-        {
-            imageManager.UploadFile(playground.ImageFile, "Playgrounds");
-            return View();
-        }
-
-        public IActionResult ConfirmEmail(int id, string anyOtherInfo)
-        {
             return View();
         }
 
