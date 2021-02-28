@@ -68,7 +68,7 @@ namespace La3bni.UI
             StripeConfiguration.ApiKey = configuration.GetSection("Stripe")["SecretKey"];
 
             app.UseAuthentication();
-            app.UseAuthorization();
+           // app.UseAuthorization();
 
             app.UseStaticFiles();
 
