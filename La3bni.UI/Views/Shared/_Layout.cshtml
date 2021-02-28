@@ -1,10 +1,11 @@
 ﻿@inject SignInManager<ApplicationUser> signInManager;
 @inject UserManager<ApplicationUser> userManager;
 
+
 <!DOCTYPE HTML>
 <html>
 <head>
-    <title>Introspect by TEMPLATED</title>
+    <title>La3bni Koora</title>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
 
@@ -17,7 +18,6 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
     <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
-    @*<link rel="stylesheet" href="/resources/demos/style.css">*@
     <link rel="stylesheet" href="~/assets/css/main.css" />
     <style>
         #navPanel {
@@ -27,7 +27,7 @@
     @RenderSection("Styles", false)
 </head>
 
-<body>
+<body style="overflow-x:hidden">
     <div class="main-page">
         <!-- Header -->
 
@@ -73,13 +73,20 @@
 
                     @if (signInManager.IsSignedIn(User))
                     {
+                        
+                        var currentUser = await userManager.GetUserAsync(User);
+                        
                         <li class="dropdown">
                             <a href="#" data-toggle="dropdown" class="dropdown-toggle user-action">
                                 @*<img src="https://www.tutorialrepublic.com/examples/images/avatar/2.jpg" class="avatar" alt="Avatar">*@
-                                <i class="fa fa-user" aria-hidden="true"></i>Paula Wilson <b class="caret"></b>
+
+                                <i class="fa fa-user" aria-hidden="true"></i>@currentUser.UserName <b class="caret"></b>
                             </a>
                             <ul class="dropdown-menu">
                                 <li><a asp-controller="Account" asp-action="myProfile"><i class="fa fa-user-o"></i> Profile</a></li>
+                                <li class="divider"></li>
+                                <li><a asp-controller="MyBookings" asp-action="Index"><i class="fa fa-user-o"></i> Bookings</a></li>
+                                <li><a asp-controller="MyBookings" asp-action="Teams"><i class="fa fa-user-o"></i> Teams</a></li>
                                 <li class="divider"></li>
                                 <li><a asp-controller="Account" asp-action="logout"><i class="material-icons">&#xE8AC;</i> Logout</a></li>
                             </ul>

@@ -13,5 +13,7 @@ namespace Repository.CustomRepository
         public Task<BookingTeam> FindWithInclude(Expression<Func<BookingTeam, bool>> wherePredict);
 
         public IQueryable<BookingTeam> GetAllIQueryable();
+
+        public IQueryable<BookingTeam> GetAllIQueryableWithInclude();
     }
 }

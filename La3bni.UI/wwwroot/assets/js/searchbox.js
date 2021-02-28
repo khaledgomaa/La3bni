@@ -36,7 +36,7 @@ $("#search").autocomplete({
     },
     select: function (e, ui) {
         $('#search').val(ui.item.label);
-        location = "/Home/Index/" + ui.item.label;
+        location = "/Booking/Index/" + ui.item.value;
         return false;
     },
     focus: function (event, ui) {
