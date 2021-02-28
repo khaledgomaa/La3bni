@@ -18,5 +18,7 @@ namespace Models.ViewModels
         public int BookingId { get; set; }
 
         public bool BookingOwner { get; set; }
+
+        public byte Paid { get; set; }
     }
 }

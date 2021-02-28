@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Models;
 using Repository;
@@ -10,6 +11,7 @@ using System.Threading.Tasks;
 
 namespace La3bni.UI.Controllers
 {
+    [Authorize]
     public class MyBookingsController : Controller
     {
         private readonly IUnitOfWork unitOfWork;

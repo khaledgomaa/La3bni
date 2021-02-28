@@ -18,7 +18,7 @@ namespace La3bni.UI.Controllers
 
         public async Task<IActionResult> Index(string PlaygroundName, int? price, Models.City? city)
         {
-            var stadiums = await unitOfWork.PlayGroundRepo.GetAll();
+            var stadiums = unitOfWork.PlayGroundRepo.GetAll().ToList();
 
             ViewData["PName"] = PlaygroundName;
             ViewData["Price"] = price;

@@ -88,7 +88,7 @@ namespace La3bni.UI.Controllers
         public async Task<IActionResult> Notification()
         {
             var user = await userManager.GetUserAsync(User);
-            var res = unitOfWork.NotificationRepo.GetAll().Result;
+            var res = unitOfWork.NotificationRepo.GetAll().ToList();
             var n = res.FindAll(n => n.ApplicationUserId == user.Id);
 
             return View(n);
@@ -109,20 +109,20 @@ namespace La3bni.UI.Controllers
                 {
                     UserName = user.Username,
                     Email = user.Email,
-                    gender = user.Gender,
-                    city = user.City,
+                    Gender = user.Gender,
+                    City = user.City,
                     PhoneNumber = user.PhoneNumber,
                     ImagePath = "",
 
                     SecurityStamp = new Guid().ToString(),
                 };
-                if (user.ImageFile != null)
+                if (user?.ImageFile != null)
                 {
                     string P = (imageManager.UploadFile(user.ImageFile, "AppImages"));
 
                     Appuser.ImagePath = P;
                 }
-                if (user.ImageFile == null)
+                if (user?.ImageFile == null)
                 {
                     if (user.Gender == Gender.Male)
                         Appuser.ImagePath = "manred.png";
@@ -143,6 +143,13 @@ namespace La3bni.UI.Controllers
                     }
                     if (user.UserType == UserType.Owner)
                     {
+                        if (!await roleManager.RoleExistsAsync("Owner"))
+                        {
+                            var role = new IdentityRole();
+                            role.Name = "Owner";
+                            role.NormalizedName = "Owner";
+                            await roleManager.CreateAsync(role);
+                        }
                         await userManager.AddToRoleAsync(Appuser, "Owner");
                         await signInManager.SignInAsync(Appuser, isPersistent: false);
                         return RedirectToAction("myProfile");
@@ -247,9 +254,9 @@ namespace La3bni.UI.Controllers
                             UserName = info.Principal.FindFirstValue(ClaimTypes.Email),
                             Email = info.Principal.FindFirstValue(ClaimTypes.Email),
                             SecurityStamp = new Guid().ToString(),
-                            gender = (Gender)usrGender,
+                            Gender = (Gender)usrGender,
                             ImagePath = "man41.png",
-                            city = City.Alexandria,
+                            City = City.Alexandria,
                             EmailConfirmed = true
                         };
 
@@ -314,11 +321,6 @@ namespace La3bni.UI.Controllers
                     {
                         if (!string.IsNullOrEmpty(returnUrl))
                         {
-                            return Redirect(returnUrl);
-                        }
-
-                        if (!string.IsNullOrEmpty(returnUrl))
-                        {
                             return Redirect("/" + returnUrl);
                         }
                         return RedirectToAction(nameof(Index), "Home");
@@ -348,7 +350,7 @@ namespace La3bni.UI.Controllers
         [Authorize]
         public IActionResult PlayGroundDiaplay(string id)
         {
-            var AllBg = unitOfWork.PlayGroundRepo.GetAll().Result;
+            var AllBg = unitOfWork.PlayGroundRepo.GetAll().ToList();
             List<Models.Playground> Only_MyBg = AllBg.FindAll(bg => bg.ApplicationUserId == id);
 
             return View(Only_MyBg);
@@ -431,12 +433,12 @@ namespace La3bni.UI.Controllers
                 }
                 Appuser.UserName = user.Username;
                 Appuser.Email = user.Email;
-                Appuser.gender = user.Gender;
-                Appuser.city = user.City;
+                Appuser.Gender = user.Gender;
+                Appuser.City = user.City;
                 Appuser.PhoneNumber = user.PhoneNumber;
                 // Appuser.ImagePath = user.ImagePath;
 
-                if (user.ImageFile != null)
+                if (user?.ImageFile != null)
                 {
                     string P = (imageManager.UploadFile(user.ImageFile, "AppImages"));
 
@@ -457,8 +459,8 @@ namespace La3bni.UI.Controllers
             {
                 Username = Appuser.UserName,
                 Email = Appuser.Email,
-                Gender = Appuser.gender,
-                City = Appuser.city,
+                Gender = Appuser.Gender,
+                City = Appuser.City,
                 PhoneNumber = Appuser.PhoneNumber,
                 ImagePath = Appuser.ImagePath,
             };

@@ -15,10 +15,10 @@ namespace Models
         public IFormFile ImageFile { get; set; }
 
         [Required]
-        public City city { get; set; }
+        public City City { get; set; }
 
         [Required]
-        public Gender gender { get; set; }
+        public Gender Gender { get; set; }
     }
 
     public enum Gender

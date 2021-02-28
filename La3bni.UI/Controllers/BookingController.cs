@@ -63,7 +63,8 @@ namespace La3bni.UI.Controllers
                     {
                         //GetTimes(playGroundId);
                         int.TryParse(timeId, out int bookingTimeId);
-                        int bookingId = await CheckBookingNotExist(playGroundId, bookingTimeId, userId, date);
+                        var bookingDetails = await CheckBookingNotExist(playGroundId, bookingTimeId, userId, date);
+                        int bookingId = bookingDetails?.BookingId ?? 0;
                         if (bookingId == 0) //0 means no booking found to this user for this parameters
                         {
                             var bookings = (await unitOfWork.BookingRepo.Find(
@@ -94,7 +95,8 @@ namespace La3bni.UI.Controllers
                         return new BookingViewModel
                         {
                             BookingId = bookingId,
-                            BookingOwner = true
+                            BookingOwner = true,
+                            Paid = bookingDetails?.Paid ?? 0
                         };
                     }
                     return new BookingViewModel
@@ -111,13 +113,13 @@ namespace La3bni.UI.Controllers
             return new BookingViewModel();
         }
 
-        public async Task<int> CheckBookingNotExist(int playgroundId, int timeId, string userId, string date)
+        public async Task<Booking> CheckBookingNotExist(int playgroundId, int timeId, string userId, string date)
         {
             return (await unitOfWork.BookingRepo.Find(b => b.ApplicationUserId == userId
                                             && b.PlaygroundId == playgroundId
                                             && b.BookedDate.Date >= DateTime.Now.Date
                                             && b.BookedDate.Date == Convert.ToDateTime(date).Date
-                                            && b.PlaygroundTimesId == timeId))?.BookingId ?? 0;
+                                            && b.PlaygroundTimesId == timeId)) ?? new Booking();
         }
 
         private async Task<int> CheckJoinedTeam(int bookingId)
@@ -169,7 +171,7 @@ namespace La3bni.UI.Controllers
                     return Json(new { error = "No bookings available please reload your page" });
                 }
             }
-            return Json(new { redirectToUrl = Url.Action("", "Home") });
+            return Json(new { redirectToUrl = Url.Action("Index", "MyBookings") });
         }
 
         public async Task<IActionResult> JoinTeam(string bookingId)
@@ -211,7 +213,7 @@ namespace La3bni.UI.Controllers
                 }
             }
 
-            return Json(new { redirectToUrl = Url.Action("", "Home") });
+            return Json(new { redirectToUrl = Url.Action("Teams", "MyBookings") });
         }
 
         public async Task<IActionResult> CancelBooking(string bookingId)
@@ -237,7 +239,7 @@ namespace La3bni.UI.Controllers
                     return Json(new { error = "booking already canceled please reload your page" });
                 }
             }
-            return Json(new { redirectToUrl = Url.Action("", "Home") });
+            return Json(new { redirectToUrl = Url.Action("Index", "MyBookings") });
         }
 
         public async Task<IActionResult> LeaveTeam(string bookingId)
@@ -272,7 +274,7 @@ namespace La3bni.UI.Controllers
                     return Json(new { error = "Team leader already canceled booking please reload your page" });
                 }
             }
-            return Json(new { redirectToUrl = Url.Action("Teams", "MyBookings") });
+            return Json(new { redirectToUrl = Url.Action("", "Home") });
         }
 
         public async Task UpdateRate(string playgroundId, float rate)
@@ -298,7 +300,7 @@ namespace La3bni.UI.Controllers
                     unitOfWork.Save();
                 }
 
-                float avgRate = (await unitOfWork.PlaygroundRateRepo.GetAll()).Where(r => r.PlaygroundId == id)?.Average(r => r.Rate) ?? 0;
+                float avgRate = unitOfWork.PlaygroundRateRepo.GetAll().Where(r => r.PlaygroundId == id)?.Average(r => r.Rate) ?? 0;
 
                 var playground = await unitOfWork.PlayGroundRepo.Find(p => p.PlaygroundId == id);
                 playground.Rate = avgRate;

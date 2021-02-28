@@ -41,10 +41,7 @@ The above copyright notice and this permission notice shall be included in all c
             <div class="logo">
                 <a href="http://www.creative-tim.com" class="simple-text logo-normal">
 
-                   
-                   
                     El Ml3b
-
                 </a>
             </div>
             <div class="sidebar-wrapper">
@@ -67,9 +64,9 @@ The above copyright notice and this permission notice shall be included in all c
                             <p>Manage Users</p>
                         </a>
                     </li>
-                    
+
                     <li class="nav-item ">
-                        <a class="nav-link" href="./tables.html">
+                        <a class="nav-link" asp-area="Owner" asp-controller="Playgrounds" asp-action="Index">
                             <i class="material-icons">content_paste</i>
                             <p>PlayGround Manager</p>
                         </a>
@@ -81,12 +78,7 @@ The above copyright notice and this permission notice shall be included in all c
                             <p>Bookings Manager</p>
                         </a>
                     </li>
-                    <li class="nav-item ">
-                        <a class="nav-link" href="./map.html">
-                            <i class="material-icons">location_ons</i>
-                            <p>Notifications</p>
-                        </a>
-                    </li>
+
                     <li class="nav-item ">
                         <a class="nav-link" asp-area="Admin" asp-action="Index" asp-controller="Email">
                             <i class="material-icons">mail</i>
@@ -95,7 +87,7 @@ The above copyright notice and this permission notice shall be included in all c
                     </li>
 
                     <li class="nav-item ">
-                        <a class="nav-link" href="./notifications.html">
+                        <a class="nav-link" href="#">
                             <i class="material-icons">notifications</i>
                             <p>Feedback</p>
                         </a>
@@ -230,6 +222,13 @@ The above copyright notice and this permission notice shall be included in all c
                         }
                     }
                 });
+
+                //var menuItems = $(".nav ul li a");
+                //$(".nav ul li a").on('click', function (event) {
+                //    event.preventDefault();
+                //    menuItems.parent().removeClass('active');
+                //    $(this).parent().addClass('active');
+                //});
 
                 $('.fixed-plugin .active-color span').click(function () {
                     $full_page_background = $('.full-page-background');

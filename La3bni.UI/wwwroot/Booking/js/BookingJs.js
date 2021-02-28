@@ -37,7 +37,14 @@ function onChangeSelectedPeriod(id) {
                         document.getElementById("bookBtn").value = "Leave Team";
                     } else {
                         removeMaxNumOfPlayers();
-                        document.getElementById("bookBtn").value = "Cancel Booking";
+                        if (response.paid == 0) {
+                            document.getElementById("bookBtn").value = "Cancel Booking";
+                        } else {
+                            var btn = document.getElementById("bookBtn");
+                            btn.value = "Paid";
+                            btn.disabled = true;
+                        }
+
                         //console.log("Cancel My Booking Please");
                     }
                 } else if (response.playgroundStatus == 1) {
@@ -186,9 +193,14 @@ function LeaveTeam() {
 function checkDateIsValid() {
     //var myPeriods = document.getElementById("periods");
     var todayDate = new Date().getDate();
-    var selectedDate = new Date(document.getElementById("selDate").value).getDate();
+    var todayMonth = new Date().getMonth();
+    var todayYear = new Date().getFullYear();
 
-    if (selectedDate < todayDate) {
+    var selectedDay = new Date(document.getElementById("selDate").value).getDate();
+    var selectedMonth = new Date(document.getElementById("selDate").value).getMonth();
+    var selectedYear = new Date(document.getElementById("selDate").value).getFullYear();
+
+    if (selectedDay >= todayYear && selectedMonth >= todayMonth && selectedDay >= todayDate) {
         changeBtnandMessageState(true, "Please select a valid date");
         return false;
     }

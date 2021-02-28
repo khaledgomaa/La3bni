@@ -240,7 +240,7 @@ namespace La3bni.Adminpanel.Areas.Admin.Controllers
                 Id = user.Id,
                 Email = user.Email,
                 UserName = user.UserName,
-                City = user.city,
+                City = user.City,
                 Claims = userClaims.Select(c => c.Value).ToList(),
                 Roles = userRoles
             };
@@ -263,7 +263,7 @@ namespace La3bni.Adminpanel.Areas.Admin.Controllers
             {
                 user.Email = umodel.Email;
                 user.UserName = umodel.UserName;
-                user.city = umodel.City;
+                user.City = umodel.City;
 
                 var res = await userManager.UpdateAsync(user);
 
@@ -288,7 +288,7 @@ namespace La3bni.Adminpanel.Areas.Admin.Controllers
 
             List<Models.Booking> All_bookings = unitOfWork.BookingRepo.GetAllWithInclude().ToList();
 
-            List<Models.Playground> All_playGrounds = await unitOfWork.PlayGroundRepo.GetAll();
+            List<Models.Playground> All_playGrounds = unitOfWork.PlayGroundRepo.GetAll().ToList();
             if (All_bookings != null)
             {
                 foreach (var book in All_bookings)

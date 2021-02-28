@@ -57,7 +57,7 @@ namespace La3bni.UI.Controllers
         {
             unitOfwork.FeedBackRepo.Add(feedBack);
             //add his email to subscribers if he is not already a subscriber
-            if (!unitOfwork.SubscriberRepo.GetAll().Result.Any(d => d.Email == feedBack.Email))
+            if (!unitOfwork.SubscriberRepo.GetAll().Any(d => d.Email == feedBack.Email))
                 unitOfwork.SubscriberRepo.Add(new Subscriber() { Email = feedBack.Email });
             unitOfwork.Save();
             emailRepository.sendEmail(
@@ -131,7 +131,7 @@ namespace La3bni.UI.Controllers
             dynamic jsonData = JObject.Parse(myNews);
             ViewBag.articles = jsonData.articles;
 
-            ViewBag.Playgrounds = unitOfwork.PlayGroundRepo.GetAll().Result;
+            ViewBag.Playgrounds = unitOfwork.PlayGroundRepo.GetAll().ToList();
             return View();
         }
 
@@ -158,7 +158,7 @@ namespace La3bni.UI.Controllers
 
         public JsonResult getPlaygroundsInJsonFormats()
         {
-            return Json(unitOfwork.PlayGroundRepo.GetAll().Result.ToList());
+            return Json(unitOfwork.PlayGroundRepo.GetAll().ToList());
         }
     }
 }

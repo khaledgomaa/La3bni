@@ -33,6 +33,8 @@ namespace La3bni.Adminpanel
 
             services.AddScoped<IEmailRepository, EmailRepository>();
 
+            services.AddScoped<ImageManager, ImageManager>();
+
             services.AddIdentity<ApplicationUser, IdentityRole>(options =>
             {
                 options.Password.RequireDigit = false;
@@ -64,7 +66,7 @@ namespace La3bni.Adminpanel
 
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapDefaultControllerRoute();
+                //endpoints.MapDefaultControllerRoute();
 
                 endpoints.MapControllerRoute(
                     name: "default",
