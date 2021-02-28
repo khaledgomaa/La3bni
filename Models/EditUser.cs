@@ -1,4 +1,3 @@
-﻿
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -10,6 +9,7 @@ using System.Text;
 
 namespace Models
 {
+
     public class EditUser
     {
         [Required(ErrorMessage = "You must choose your type")]
@@ -68,3 +68,5 @@ namespace Models
     }
 
 }
+
+  

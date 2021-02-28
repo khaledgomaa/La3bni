@@ -139,7 +139,7 @@ namespace La3bni.UI.Controllers
             return View();
         }
 
-        public async Task<string> GetNewsAsync()
+         public async Task<string> GetNewsAsync()
         {
             var client = new HttpClient();
             var request = new HttpRequestMessage
