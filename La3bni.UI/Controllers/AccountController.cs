@@ -136,6 +136,13 @@ namespace La3bni.UI.Controllers
                     if (user.UserType == UserType.Player)
                     {
                         await signInManager.SignInAsync(Appuser, isPersistent: false);
+                        if (!await roleManager.RoleExistsAsync("Player"))
+                        {
+                            var role = new IdentityRole();
+                            role.Name = "Player";
+                            role.NormalizedName = "Player";
+                            await roleManager.CreateAsync(role);
+                        }
 
                         await userManager.AddToRoleAsync(Appuser, "Player");
 
