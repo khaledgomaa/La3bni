@@ -4,31 +4,46 @@
 @{
     ViewData["Title"] = "Notification";
 }
+<br />
+<br />
+<br />
+<h3> Your Notifications </h3>
 
 <style>
     body {
         text-align: center;
+        
+       
     }
 </style>
 <ul>
     @foreach (var item in Model)
     {
-        <li>
-            <div class="content">
+        
+           
 
                 <div>
-                    <h2>  @Html.DisplayFor(modelItem => item.Title)</h2>
+                    <h6 style="color:black">
+                        @Html.DisplayFor(modelItem => item.Title)
 
-                    <h4> @Html.DisplayFor(modelItem => item.Body)</h4>
-                    <a asp-action="NotifactionRead" asp-route-id="@item.NotificationId">
-                        <img src="~/images/read.png" />
-                    </a>
-                    <a asp-action="NotifactionDelete" asp-route-id="@item.NotificationId">
-                        <img src="~/images/delete.png" />
-                    </a>
+                        @Html.DisplayFor(modelItem => item.Body)
+                        &nbsp; &nbsp;
+                        <a asp-action="NotifactionRead" asp-route-id="@item.NotificationId">
+
+
+                            <img src="~/images/Account/unseen32.png" />
+                        </a>
+                        &nbsp; 
+                        <a asp-action="NotifactionDelete" asp-route-id="@item.NotificationId">
+
+                            <img src="~/images/Account/delete.png" />
+                        </a>
+                    </h6>
+                    <hr />
                 </div>
-            </div>
-        </li>
+            
+     
+
 
     }
 </ul>

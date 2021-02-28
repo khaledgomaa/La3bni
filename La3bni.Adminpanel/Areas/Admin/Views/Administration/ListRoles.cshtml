@@ -5,7 +5,7 @@
 
 }
 
-<h2>All Roles </h2>
+<h2 >All Roles </h2>
 
 @if (Model.Any())
 {
@@ -13,17 +13,23 @@
         Create New Role
     </a>
 
+    <br /> <br /> <br />
+
     foreach (var role in Model)
     {
-        <div> Role Id : @role.Id </div>
+        <div  > Role Id : @role.Id </div>
 
-        <div>  @role.Name </div>
+        <div >  @role.Name </div>
 
         <div>
             <a asp-controller="Administration" asp-action="EditRole" asp-area="Admin"
                asp-route-id="@role.Id"> Edit </a>
 
-            <a href="#"> Delete </a>
+            <form method="post" asp-action="DeleteRole" asp-controller="Administration"
+                  asp-route-id="@role.Id">
+                <input type="submit" value="Delete"   class="btn btn-primary" />
+            </form>
+
         </div>
     }
 }
@@ -42,7 +48,3 @@ else
 }
 
 <h2>@ViewBag.ErrorMsg </h2>
-
-<a asp-action="Index" asp-controller="Administration">
-    Click here to navigate to the home
-</a>

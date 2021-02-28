@@ -1,0 +1,39 @@
+﻿@model IEnumerable<Models.ApplicationUser> 
+
+@{
+    ViewBag.Title = "All Users";
+
+}
+
+<h2> All Users  </h2>
+
+
+@if (Model.Any())
+{
+    <div asp-validation-summary="All" class="text-danger"></div>
+    <a href="F:\La3bni\La3bni\La3bni.UI\Views\Account\Register.cshtml">
+        Add new User
+    </a>
+
+    foreach (var user in Model)
+    {
+        <div>
+            User Id : @user.Id
+        </div>
+        <h5>
+            @user.UserName
+        </h5>
+
+        <a asp-action="EditUser" asp-controller="Administration"
+           asp-route-Id="@user.Id">   Edit </a>
+
+        <form method="post" asp-action="DeleteUser" asp-controller="Administration"
+              asp-route-id="@user.Id">
+            <input type="submit" value="Delete" class="btn btn-primary" />
+           </form>
+
+    }
+}
+
+
+

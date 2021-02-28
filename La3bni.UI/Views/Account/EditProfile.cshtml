@@ -1,0 +1,115 @@
+﻿@model Models.EditUser
+@{
+    ViewData["Title"] = "Edit Profile";
+    var cities = new List<object>();
+    foreach (Models.City cityy in Enum.GetValues(typeof(Models.City)))
+    {
+        string CITY = (cityy.ToString());
+        cities.Add(Enum.Parse(typeof(Models.City), CITY));
+    }
+}
+
+@section Styles {
+
+    <link href="~/assets/css/Register.css" rel="stylesheet" />
+}
+
+<div class="signupSection">
+
+    <br /><br />
+   
+        <h4>
+
+        <img src="~/images/Account/edit-info1.png" />
+    </h4>
+
+        <form asp-action="EditProfile" enctype="multipart/form-data">
+
+            @*<div class="form-group">
+            <label> Choose Join as : </label>
+
+
+            <select asp-for="UserType">
+
+                <option>@UserType.Player</option>
+                <option>@UserType.Owner</option>
+            </select>
+            <span asp-validation-for="UserType" class="text-danger"></span>
+        </div>*@
+
+            <div class="form-group">
+                <label asp-for="Username" class="control-label">
+                    <input asp-for="Username" class="form-control" placeholder="User Name" />
+                </label>
+                <span asp-validation-for="Username" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Email" class="control-label">
+
+                    <input asp-for="Email" class="form-control" placeholder="email" />
+                </label>
+                <span asp-validation-for="Email" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Old_Password" class="control-label">
+                    <input asp-for="Old_Password" class="form-control" placeholder="Current Password" />
+                </label>
+                <span asp-validation-for="Old_Password" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="NewPassword" class="control-label">
+                    <input asp-for="NewPassword" class="form-control" placeholder="New Password" />
+                </label>
+                <span asp-validation-for="NewPassword" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="ConfirmPassword" class="control-label">
+                    <input asp-for="ConfirmPassword" class="form-control" placeholder="Rewrite new password" />
+                </label>
+                <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="PhoneNumber" class="control-label">
+                    <input asp-for="PhoneNumber" class="form-control" placeholder="Mobile phone" />
+                </label>
+                <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="City" class="control-label">
+
+                    <select asp-for="City"
+                            asp-items="@(new SelectList(cities))">
+                    </select>
+                </label>
+                <span asp-validation-for="City" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Gender" class="control-label">
+
+                    <select asp-for="Gender">
+
+                        <option>@Gender.Male</option>
+                        <option>@Gender.Female</option>
+                    </select>
+                </label>
+                <span asp-validation-for="Gender" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="ImageFile" class="control-label">
+                    <input asp-for="ImageFile" accept="image/*" />
+                </label>
+                <span asp-validation-for="ImageFile" class="text-danger"></span>
+            </div>
+
+            <div asp-validation-summary="All" class="text-danger"></div> 
+            <div class="form-group">
+                <input type="submit" value="Save Changes" class="btn btn-primary" />
+            </div>
+        </form>
+</div>
