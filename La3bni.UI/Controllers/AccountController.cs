@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Models;
+using Models.ViewModels;
 using Repository;
 using System;
 using System.Collections.Generic;
@@ -146,9 +147,9 @@ namespace La3bni.UI.Controllers
 
                         await userManager.AddToRoleAsync(Appuser, "Player");
 
-                        return RedirectToAction("myProfile");
+                        //return RedirectToAction("myProfile");
                     }
-                    if (user.UserType == UserType.Owner)
+                    else if (user.UserType == UserType.Owner)
                     {
                         if (!await roleManager.RoleExistsAsync("Owner"))
                         {
@@ -159,7 +160,7 @@ namespace La3bni.UI.Controllers
                         }
                         await userManager.AddToRoleAsync(Appuser, "Owner");
                         await signInManager.SignInAsync(Appuser, isPersistent: false);
-                        return RedirectToAction("myProfile");
+                        //return RedirectToAction("myProfile");
                     }
 
                     await signInManager.SignInAsync(Appuser, isPersistent: false);
@@ -183,7 +184,8 @@ namespace La3bni.UI.Controllers
         {
             if (UserId == null || token == null)
             {
-                return View("Error");
+                ModelState.AddModelError("", "Invalid Token");
+                return View();
             }
             else
             {
@@ -294,7 +296,7 @@ namespace La3bni.UI.Controllers
                         }
                     }
                 }//If Email is null then we can't register him
-                ViewBag.ErrorTitle = $"Email wan't found!";
+                ViewBag.ErrorTitle = $"Email wasn't found!";
                 ViewBag.ErrorMessage = $"Your Email Wasn't received from {info.LoginProvider}" +
                     $"Sorry we can't sign you in using your {info.LoginProvider} account";
                 return View("Error");
@@ -473,5 +475,67 @@ namespace La3bni.UI.Controllers
             };
             return View(user);
         }
+
+        public IActionResult ResetPassword()
+        {
+
+            return View("ResetPassword");
+        }
+        [HttpGet]
+        public IActionResult ResetPasswordTokenCallBack(string email, string token)
+        {
+            if (email == null || token == null)
+            {
+                ModelState.AddModelError("", "Invalid Password Reset Token");
+                return View();
+            }
+            var model = new ResetPasswordModel { Token = token, Email = email };
+            return View(model);
+        }
+        [HttpPost]
+        public async Task<IActionResult> ResetPasswordTokenCallBack(ResetPasswordModel passwordModel)
+        {
+
+            if (ModelState.IsValid)
+            {
+                var user =  userManager.FindByEmailAsync(passwordModel.Email).Result;
+                if (user == null)
+                {
+                    ModelState.AddModelError("", "Invalid Password Reset Token");
+                    return View();
+                }
+                else
+                {
+                    IdentityResult result = userManager.ResetPasswordAsync(user, passwordModel.Token, passwordModel.Password).Result;
+                    if (result.Succeeded)
+                    {
+                        //password changed
+                        return RedirectToAction("Login");
+                    }
+                    ModelState.AddModelError("", "Invalid Password Reset Token");
+                    return View();
+                }
+            }
+            else
+                return View(passwordModel);
+        }
+        public IActionResult SendResetPasswordEmail(IFormCollection form)
+        {
+
+            var email = form["Email"];
+            var user = userManager.FindByEmailAsync(email).Result;
+            if (user.EmailConfirmed)
+            {
+                var confirmationToken = userManager.GeneratePasswordResetTokenAsync(user).Result;
+                var confirmationLink = Url.Action("ResetPasswordTokenCallBack", "Account", new { email = email, token = confirmationToken }, Request.Scheme);
+                emailRepository.sendEmail("Password Reset", $"Click below to change your password\n{confirmationLink}", new List<string> { email });
+
+                return RedirectToAction("Login");   
+            }
+            else
+                ModelState.AddModelError("emailValidate", "Please Confirm Your Email first!");
+            return View("ResetPassword");
+        }
+
     }
 }
