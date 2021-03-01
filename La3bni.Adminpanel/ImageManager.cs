@@ -77,7 +77,7 @@ namespace La3bni.Adminpanel
         public void DeleteFile(string folderName, string imageName)
         {
             string path = wwwRootPath + "/" + folderName + "/";
-            FileInfo file = new FileInfo(Path.Combine(Directory.GetCurrentDirectory(), path + imageName));
+            FileInfo file = new FileInfo(Path.Combine(Directory.GetCurrentDirectory(), path , imageName));
             if (file.Exists)
             {
                 file.Delete();
