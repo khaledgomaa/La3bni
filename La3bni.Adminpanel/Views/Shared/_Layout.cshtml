@@ -142,7 +142,7 @@ The above copyright notice and this permission notice shall be included in all c
 
                                 @if (!string.IsNullOrEmpty(userRole))
                                 {
-                                    <form asp-controller="Account" asp-action="Logout">
+                                    <form asp-controller="Account" asp-action="Logout" asp-area="Admin">
                                         <input type="submit" value="LogOut" class="btn btn-danger" />
                                     </form>
                                 }

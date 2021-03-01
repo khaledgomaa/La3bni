@@ -38,7 +38,8 @@ namespace La3bni.Adminpanel.Areas.Admin.Controllers
 
                     if (userRole == "Admin")
                     {
-                        return Redirect("Admin/Dashboard/Index");
+                        return RedirectToAction("Index", "Dashboard", new { area = "Admin" });
+                        //return Redirect("Admin/Dashboard/Index");
                     }
                     else if (userRole == "Owner")
                     {

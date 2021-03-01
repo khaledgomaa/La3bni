@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace La3bni.Adminpanel.Controllers
 {
-    [Route("Admin")]
+    [Area("Admin")]
     public class AccountController : Controller
     {
         private readonly UserManager<ApplicationUser> userManager;
@@ -20,11 +20,13 @@ namespace La3bni.Adminpanel.Controllers
             signInManager = _signInManager;
         }
 
+        [Route("Login")]
         public IActionResult Login()
         {
             return View();
         }
 
+        [Route("Login")]
         [HttpPost]
         public async Task<IActionResult> Login(string userName, string pass)
         {
@@ -39,7 +41,7 @@ namespace La3bni.Adminpanel.Controllers
 
                     if (userRole == "Admin")
                     {
-                        return RedirectToAction("Index", "Dashboard");
+                        return RedirectToAction("Index", "Dashboard", new { area = "Admin" });
                     }
                     else if (userRole == "Owner")
                     {
@@ -51,6 +53,7 @@ namespace La3bni.Adminpanel.Controllers
             return View();
         }
 
+        [Route("Logout")]
         public async Task<IActionResult> Logout()
         {
             await signInManager.SignOutAsync();
