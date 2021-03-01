@@ -1,5 +1,5 @@
-﻿@model IEnumerable<Models.ApplicationUser> 
-
+﻿@model IEnumerable<Models.ApplicationUser>
+@inject IConfiguration config
 @{
     ViewBag.Title = "All Users";
 
@@ -7,33 +7,32 @@
 
 <h2> All Users  </h2>
 
-
 @if (Model.Any())
 {
     <div asp-validation-summary="All" class="text-danger"></div>
-    <a href="F:\La3bni\La3bni\La3bni.UI\Views\Account\Register.cshtml">
+    <a href="@string.Concat(config["Domain"], "Account/Register")">
         Add new User
     </a>
 
-    foreach (var user in Model)
-    {
-        <div>
-            User Id : @user.Id
-        </div>
-        <h5>
-            @user.UserName
-        </h5>
+    <div class="container">
 
-        <a asp-action="EditUser" asp-controller="Administration"
-           asp-route-Id="@user.Id">   Edit </a>
+        @foreach (var user in Model)
+        {
+            <div>
+                User Id : @user.Id
+            </div>
+            <h5>
+                @user.UserName
+            </h5>
 
-        <form method="post" asp-action="DeleteUser" asp-controller="Administration"
-              asp-route-id="@user.Id">
-            <input type="submit" value="Delete" class="btn btn-primary" />
-           </form>
+            <a asp-action="EditUser" asp-controller="Administration"
+               asp-route-Id="@user.Id">   Edit </a>
 
-    }
+            <form method="post" asp-action="DeleteUser" asp-controller="Administration"
+                  asp-route-id="@user.Id">
+                <input type="submit" value="Delete" class="btn btn-primary" />
+            </form>
+
+        }
+    </div>
 }
-
-
-

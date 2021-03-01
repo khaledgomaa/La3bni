@@ -6,8 +6,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace La3bni.Adminpanel.Areas.Admin.Controllers
+namespace La3bni.Adminpanel.Controllers
 {
+    [Area("Admin")]
     public class AccountController : Controller
     {
         private readonly UserManager<ApplicationUser> userManager;
@@ -19,11 +20,13 @@ namespace La3bni.Adminpanel.Areas.Admin.Controllers
             signInManager = _signInManager;
         }
 
+        [Route("Login")]
         public IActionResult Login()
         {
             return View();
         }
 
+        [Route("Login")]
         [HttpPost]
         public async Task<IActionResult> Login(string userName, string pass)
         {
@@ -39,7 +42,6 @@ namespace La3bni.Adminpanel.Areas.Admin.Controllers
                     if (userRole == "Admin")
                     {
                         return RedirectToAction("Index", "Dashboard", new { area = "Admin" });
-                        //return Redirect("Admin/Dashboard/Index");
                     }
                     else if (userRole == "Owner")
                     {
@@ -51,6 +53,7 @@ namespace La3bni.Adminpanel.Areas.Admin.Controllers
             return View();
         }
 
+        [Route("Logout")]
         public async Task<IActionResult> Logout()
         {
             await signInManager.SignOutAsync();

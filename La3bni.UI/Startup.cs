@@ -12,6 +12,7 @@ using Microsoft.Extensions.Hosting;
 using Models;
 using Repository;
 using Stripe;
+using System;
 
 namespace La3bni.UI
 {
@@ -51,7 +52,9 @@ namespace La3bni.UI
             })
             .AddEntityFrameworkStores<La3bniContext>()
             .AddDefaultTokenProviders();
-
+            //LifeSpan for our tokens
+            services.Configure<DataProtectionTokenProviderOptions>(opt =>
+            opt.TokenLifespan = TimeSpan.FromHours(2));
             services.AddAuthentication()
                 .AddGoogle(opt =>
                 {
@@ -81,12 +84,9 @@ namespace La3bni.UI
 
             StripeConfiguration.ApiKey = configuration.GetSection("Stripe")["SecretKey"];
 
-
             app.UseStaticFiles();
 
             app.UseRouting();
-            app.UseAuthentication();
-            app.UseAuthorization();
 
             app.UseStaticFiles();
 
@@ -99,6 +99,7 @@ namespace La3bni.UI
             app.UseEndpoints(endpoints =>
             {
                 //endpoints.MapDefaultControllerRoute();
+
                 endpoints.MapControllerRoute(
                     name: "default",
                     pattern: "{controller=Home}/{action=Index}/{id?}");

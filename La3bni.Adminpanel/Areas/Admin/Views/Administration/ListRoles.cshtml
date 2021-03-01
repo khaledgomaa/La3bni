@@ -5,7 +5,7 @@
 
 }
 
-<h2 >All Roles </h2>
+<h2>All Roles </h2>
 
 @if (Model.Any())
 {
@@ -13,25 +13,29 @@
         Create New Role
     </a>
 
-    <br /> <br /> <br />
+    <br />
+    <br />
+    <br />
 
-    foreach (var role in Model)
-    {
-        <div  > Role Id : @role.Id </div>
+    <div class="container">
 
-        <div >  @role.Name </div>
+        @foreach (var role in Model)
+        {
+            <div> Role Id : @role.Id </div>
 
-        <div>
-            <a asp-controller="Administration" asp-action="EditRole" asp-area="Admin"
-               asp-route-id="@role.Id"> Edit </a>
+            <div>  @role.Name </div>
 
-            <form method="post" asp-action="DeleteRole" asp-controller="Administration"
-                  asp-route-id="@role.Id">
-                <input type="submit" value="Delete"   class="btn btn-primary" />
-            </form>
+            <div>
+                <a asp-controller="Administration" asp-action="EditRole" asp-area="Admin"
+                   asp-route-id="@role.Id"> Edit </a>
 
-        </div>
-    }
+                <form method="post" asp-action="DeleteRole" asp-controller="Administration"
+                      asp-route-id="@role.Id">
+                    <input type="submit" value="Delete" class="btn btn-primary" />
+                </form>
+            </div>
+        }
+    </div>
 }
 else
 {

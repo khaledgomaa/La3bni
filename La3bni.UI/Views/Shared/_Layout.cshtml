@@ -4,6 +4,7 @@
 @inject RoleManager<IdentityRole> roleManager;
 
 @{
+
     var res = unitOfWork.NotificationRepo.GetAll().ToList();
     var notifyy = res;
     var Unseen_count = notifyy.Count;

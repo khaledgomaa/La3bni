@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Models;
 using Newtonsoft.Json;
@@ -16,20 +17,25 @@ namespace La3bni.Adminpanel.Controllers
     {
         private IUnitOfWork unitOfWork;
         private readonly ImageManager imageManager;
+        private readonly UserManager<ApplicationUser> userManager;
 
-        public PlaygroundsController(IUnitOfWork unitOfWork, ImageManager imageManager)
+        public PlaygroundsController(IUnitOfWork unitOfWork, ImageManager imageManager, UserManager<ApplicationUser> userManager)
         {
             this.unitOfWork = unitOfWork;
             this.imageManager = imageManager;
+            this.userManager = userManager;
         }
 
         // GET: playgroundsController
         [Route("Index")]
         [Route("")]
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            var x = unitOfWork.PlayGroundRepo.GetAll().ToList();
-            return View(x);
+            //for testing right now
+            ApplicationUser user = await userManager.GetUserAsync(User);
+            string userId = user?.Id ?? "";
+            var stadiums = unitOfWork.PlayGroundRepo.GetAll().Where(p => p.ApplicationUserId == userId).ToList();
+            return View(stadiums);
         }
 
         [Route("Details")]
@@ -40,18 +46,20 @@ namespace La3bni.Adminpanel.Controllers
             {
                 return NotFound();
             }
-            var stadiums = await unitOfWork.PlayGroundRepo.Find(s => s.PlaygroundId == id);
+            var stadium = await unitOfWork.PlayGroundRepo.Find(p => p.PlaygroundId == id);
 
-            if (stadiums == null)
+            if (stadium == null)
             {
                 return NotFound();
             }
-            var times = unitOfWork.PlaygroundTimesRepo.GetAll().ToList();
-            ViewData["PlaygroundTimes"] = times.Where(p => p.PlaygroundId == id).ToList();
-            return View(stadiums);
+
+            ViewData["PlaygroundTimes"] = unitOfWork.PlaygroundTimesRepo.GetAll().Where(p => p.PlaygroundId == id).ToList();
+
+            return View(stadium);
         }
 
         [Route("Create")]
+
         // GET: playgroundsController/Create
         public ActionResult Create()
         {
@@ -62,56 +70,87 @@ namespace La3bni.Adminpanel.Controllers
 
         [Route("Create")]
         [HttpPost]
-        //[ValidateAntiForgeryToken]
-        public IActionResult Create(string playgroundtimesinfo, string Playground, string image)
+        public async Task<IActionResult> Create(string playgroundtimesinfo, string Playground, string image)
         {
-            List<PlaygroundTimes> playgroundTimes = JsonConvert.DeserializeObject<List<PlaygroundTimes>>(playgroundtimesinfo);
-            Playground playground = JsonConvert.DeserializeObject<Playground>(Playground);
-            playground.ImagePath = imageManager.UploadFile(image, "images");
-
-            /* if (playground.Services == null)
-             {
-                 playground.Services = 0;
-             }
-             else
-             {*/
-            // playground.Services = (Services)Enum.Parse(typeof(Services), services);
-            //}
-            //playground.ImagePath = imageManager.UploadFile(playground.ImageFile, "images");
-            unitOfWork.PlayGroundRepo.Add(playground);
-            unitOfWork.Save();
-
-            foreach (var obj in playgroundTimes)
+            ApplicationUser user = await userManager.GetUserAsync(User);
+            string userID = user?.Id ?? "";
+            try
             {
-                obj.PlaygroundId = playground.PlaygroundId;
-                obj.Playground = playground;
+                Playground playground1 = JsonConvert.DeserializeObject<Playground>(Playground);
+                if (ModelState.IsValid)
+                {
+                    playground1.ApplicationUser = user;
+                    playground1.ApplicationUserId = userID;//user.Id;
+                    playground1.ImagePath = imageManager.UploadFile(image, "images");
+                    unitOfWork.PlayGroundRepo.Add(playground1);
+                    unitOfWork.Save();
+                }
 
-                unitOfWork.PlaygroundTimesRepo.Add(obj);
+                if (!string.IsNullOrEmpty(playgroundtimesinfo))
+                {
+                    List<PlaygroundTimes> playgroundTimes = JsonConvert.DeserializeObject<List<PlaygroundTimes>>(playgroundtimesinfo);
+                    foreach (var stadiumTimes in playgroundTimes)
+                    {
+                        stadiumTimes.Playground = playground1;
+                        stadiumTimes.PlaygroundId = playground1.PlaygroundId;
+                        unitOfWork.PlaygroundTimesRepo.Add(stadiumTimes);
+                    }
+                    unitOfWork.Save();
+                }
+                return RedirectToAction(nameof(Index));
             }
-            unitOfWork.Save();
-            // try
-            //{
-            //  if (ModelState.IsValid)
-            //  {
-            //    if (services == null)
-            //    {
-            // playground.Services = 0;  // Depending whether you allow neither day to be selected
-            // you can handle this differently
-            // }
-            //  else
-            //  {
-            //playground.Services = (Services)Enum.Parse(typeof(Services), services);
-            //  }
-            //playground.ImagePath = imageManager.UploadFile(playground.ImageFile, "images");
-            //unitOfWork.PlayGroundRepo.Add(playground);
-            //   unitOfWork.Save();
-            // }
-            // return RedirectToAction(nameof(Index));
-            // }
-            //catch
-            // {
-            return RedirectToAction(nameof(Index));
-            //}
+            catch
+            {
+                return View();
+            }
+        }
+
+        [HttpPost]
+        [Route("DeletePlaygroundTimes")]
+
+        // ajax request method for deleting record for specific playground
+        public async Task<IActionResult> DeletePlaygroundTimes(string pid)
+        {
+            if (!string.IsNullOrEmpty(pid))
+            {
+                //pid is a Json object 1- deseralize to int
+                // 2- use this id to get the current playground and remove it from database
+
+                int playgroundId = JsonConvert.DeserializeObject<int>(pid);
+                var playgroundTimes = unitOfWork.PlaygroundTimesRepo.Find(t => t.PlaygroundTimesId == playgroundId);
+                unitOfWork.PlaygroundTimesRepo.Delete(await playgroundTimes);
+                unitOfWork.Save();
+
+                return Json(pid);
+            }
+            else
+            {
+                return NotFound();
+            }
+        }
+
+        [HttpPost]
+        [Route("UpdatePlayGroundTimes")]
+        //[ValidateAntiForgeryToken]
+        public async Task<IActionResult> UpdatePlayGroundTimes(string playgroundtimesinfo)
+        {
+            if (!string.IsNullOrEmpty(playgroundtimesinfo))
+            {
+                // second object because during update the attributes in the recieved object contain values
+                // others set to null so we get the get object from database and update the required attributes only
+
+                PlaygroundTimes playgroundTimes = JsonConvert.DeserializeObject<PlaygroundTimes>(playgroundtimesinfo);
+                PlaygroundTimes playgroundTimes1 = await unitOfWork.PlaygroundTimesRepo.Find(t => t.PlaygroundTimesId == playgroundTimes.PlaygroundTimesId);
+                playgroundTimes1.From = playgroundTimes.From;
+                playgroundTimes1.To = playgroundTimes.To;
+                unitOfWork.PlaygroundTimesRepo.Update(playgroundTimes1);
+                unitOfWork.Save();
+                return Json(playgroundtimesinfo);
+            }
+            else
+            {
+                return NotFound();
+            }
         }
 
         [Route("Edit")]
@@ -122,89 +161,60 @@ namespace La3bni.Adminpanel.Controllers
             {
                 return NotFound();
             }
-            var stadiums = await unitOfWork.PlayGroundRepo.Find(s => s.PlaygroundId == id);
-            var times = unitOfWork.PlaygroundTimesRepo.GetAll().ToList();
-            ViewData["PlaygroundTimes"] = times.Where(p => p.PlaygroundId == id).ToList();
-            if (stadiums == null)
+
+            var stadium = await unitOfWork.PlayGroundRepo.Find(s => s.PlaygroundId == id);
+            ViewData["PlaygroundTimes"] = unitOfWork.PlaygroundTimesRepo.GetAll().Where(p => p.PlaygroundId == id).ToList();
+
+            if (stadium == null)
             {
                 return NotFound();
             }
-            return View(stadiums);
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> DeletePlaygroundTimes(string pid)
-        {
-            int playgroundId = JsonConvert.DeserializeObject<int>(pid);
-            var playgroundTimes = unitOfWork.PlaygroundTimesRepo.Find(t => t.PlaygroundTimesId == playgroundId);
-            unitOfWork.PlaygroundTimesRepo.Delete(await playgroundTimes);
-            unitOfWork.Save();
-
-            return Json(pid);
-        }
-
-        [HttpPost]
-        //[ValidateAntiForgeryToken]
-        public async Task<IActionResult> UpdatePlayGroundTimesAsync(string playgroundtimesinfo)
-        {
-            PlaygroundTimes playgroundTimes = JsonConvert.DeserializeObject<PlaygroundTimes>(playgroundtimesinfo);
-            PlaygroundTimes playgroundTimes1 = await unitOfWork.PlaygroundTimesRepo.Find(t => t.PlaygroundTimesId == playgroundTimes.PlaygroundTimesId);
-            playgroundTimes1.From = playgroundTimes.From;
-            playgroundTimes1.To = playgroundTimes.To;
-            unitOfWork.PlaygroundTimesRepo.Update(playgroundTimes1);
-            unitOfWork.Save();
-            return Json(playgroundtimesinfo);
+            return View(stadium);
         }
 
         // POST: playgroundsController/Edit/5
         [Route("Edit")]
         [HttpPost]
-        //[ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(string playgroundtimesinfo, string Playground)
         {
-            Playground playground2 = JsonConvert.DeserializeObject<Playground>(Playground);
-
-            Playground playground1 = await unitOfWork.PlayGroundRepo.Find(p => p.PlaygroundId == playground2.PlaygroundId);
-
-            playground1.Name = playground2.Name;
-            playground1.City = playground2.City;
-            playground1.StadiumArea = playground2.StadiumArea;
-            playground1.AmPrice = playground2.PmPrice;
-            playground1.PmPrice = playground2.PmPrice;
-            playground1.Services = playground2.Services;
-            playground1.PlaygroundStatus = playground2.PlaygroundStatus;
-            playground1.IsOffered = playground2.IsOffered;
-            playground1.CreatedOn = playground2.CreatedOn;
-
-            unitOfWork.PlayGroundRepo.Update(playground1);
-            //unitOfWork.Save();
-            if (playgroundtimesinfo != null && playgroundtimesinfo != "")
-            {
-                List<PlaygroundTimes> playgroundTimes = JsonConvert.DeserializeObject<List<PlaygroundTimes>>(playgroundtimesinfo);
-                foreach (var obj in playgroundTimes)
-                {
-                    obj.PlaygroundId = playground1.PlaygroundId;
-                    obj.Playground = playground1;
-
-                    unitOfWork.PlaygroundTimesRepo.Add(obj);
-                }
-                unitOfWork.Save();
-            }
-
             try
             {
+                Playground playground2 = JsonConvert.DeserializeObject<Playground>(Playground);
+                Playground playground1 = await unitOfWork.PlayGroundRepo.Find(p => p.PlaygroundId == playground2.PlaygroundId);
                 if (ModelState.IsValid)
                 {
-                    //playground.ImagePath = imageManager.UploadFile(playground.ImageFile, "images");
-                    // unitOfWork.PlayGroundRepo.Update(playground);
-                    //unitOfWork.Save();
+                    playground1.Name = playground2.Name;
+                    playground1.City = playground2.City;
+                    playground1.StadiumArea = playground2.StadiumArea;
+                    playground1.AmPrice = playground2.PmPrice;
+                    playground1.PmPrice = playground2.PmPrice;
+                    playground1.Services = playground2.Services;
+                    playground1.PlaygroundStatus = playground2.PlaygroundStatus;
+                    playground1.IsOffered = playground2.IsOffered;
+                    playground1.CreatedOn = playground2.CreatedOn;
+                    unitOfWork.PlayGroundRepo.Update(playground1);
+                    unitOfWork.Save();
                 }
-                return RedirectToAction(nameof(Index));
+
+                if (!string.IsNullOrEmpty(playgroundtimesinfo))
+                {
+                    List<PlaygroundTimes> playgroundTimes = JsonConvert.DeserializeObject<List<PlaygroundTimes>>(playgroundtimesinfo);
+                    foreach (var stadiumTimes in playgroundTimes)
+                    {
+                        stadiumTimes.PlaygroundId = playground1.PlaygroundId;
+                        stadiumTimes.Playground = playground1;
+
+                        unitOfWork.PlaygroundTimesRepo.Add(stadiumTimes);
+                    }
+                    unitOfWork.Save();
+                }
             }
             catch
             {
                 return View();
             }
+
+            return RedirectToAction(nameof(Index));
         }
 
         [Route("Delete")]
@@ -213,44 +223,32 @@ namespace La3bni.Adminpanel.Controllers
         {
             if (id == null)
             {
-                return NotFound();
+                // return NotFound();
             }
-            var stadiums = unitOfWork.PlayGroundRepo.Find(s => s.PlaygroundId == id);
-            if (stadiums == null)
+            var stadium = unitOfWork.PlayGroundRepo.Find(s => s.PlaygroundId == id);
+            if (stadium == null)
             {
-                return NotFound();
+                // return NotFound();
             }
-            return View(await stadiums);
+            return View(await stadium);
         }
 
-        // POST: playgroundsController/Delete/5
         [HttpPost]
         [Route("Delete")]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> Delete(int id, IFormCollection collection)
+        public async Task<ActionResult> Delete(Playground collection)
         {
-            Playground stadiums = await unitOfWork.PlayGroundRepo.Find(s => s.PlaygroundId == id);
-            imageManager.DeleteFile("images", stadiums.ImagePath);
-            unitOfWork.PlayGroundRepo.Delete(stadiums);
+            Playground stadium = await unitOfWork.PlayGroundRepo.Find(s => s.PlaygroundId == collection.PlaygroundId);
+            imageManager.DeleteFile("images", stadium.ImagePath);
+            unitOfWork.PlayGroundRepo.Delete(stadium);
             var stadiumTimes = unitOfWork.PlaygroundTimesRepo.GetAll().ToList();
-            stadiumTimes = stadiumTimes.Where(t => t.PlaygroundId == stadiums.PlaygroundId).ToList();
+            stadiumTimes = stadiumTimes.Where(t => t.PlaygroundId == stadium.PlaygroundId).ToList();
             foreach (var obj in stadiumTimes)
             {
                 unitOfWork.PlaygroundTimesRepo.Delete(obj);
             }
             unitOfWork.Save();
             return RedirectToAction(nameof(Index));
-            try
-            {
-                // imageManager.DeleteFile("images");
-                // var stadiums = unitOfWork.PlayGroundRepo.Find(s => s.PlaygroundId == id);
-                //unitOfWork.PlayGroundRepo.Delete(await stadiums);
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
-                return View();
-            }
         }
     }
 }
