@@ -55,8 +55,6 @@ namespace La3bni.Adminpanel
                 app.UseDeveloperExceptionPage();
             }
 
-            app.UseRouting();
-
             app.UseStaticFiles();
 
             if (!Directory.Exists(Path.Combine(Directory.GetCurrentDirectory(), "Images")))
@@ -64,16 +62,24 @@ namespace La3bni.Adminpanel
                 Directory.CreateDirectory("Images");
             }
 
+            app.UseRouting();
+
+            app.UseAuthentication();
+
+            app.UseAuthorization();
+
             app.UseEndpoints(endpoints =>
             {
-                //endpoints.MapDefaultControllerRoute();
-
                 endpoints.MapControllerRoute(
                     name: "default",
 
                     pattern: "{area=Admin}/{controller=Dashboard}/{action=Index}/{id?}"
 
                     );
+
+                endpoints.MapControllerRoute(
+                name: "default",
+                 pattern: "{controller=Account}/{action=Login}/{id?}");
             });
         }
     }

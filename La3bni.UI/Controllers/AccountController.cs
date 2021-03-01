@@ -268,14 +268,23 @@ namespace La3bni.UI.Controllers
                             City = City.Alexandria,
                             EmailConfirmed = true
                         };
-
                         var created = await userManager.CreateAsync(user);
+
                         if (created.Succeeded)
                         {
                             var insertingNewLoginResult = await userManager.AddLoginAsync(user, info);
                             if (insertingNewLoginResult.Succeeded)
                             {
                                 await signInManager.SignInAsync(user, isPersistent: false);
+                                if (!await roleManager.RoleExistsAsync("Player"))
+                                {
+                                    var role = new IdentityRole();
+                                    role.Name = "Player";
+                                    role.NormalizedName = "Player";
+                                    await roleManager.CreateAsync(role);
+                                }
+                                await userManager.AddToRoleAsync(user, "Player");
+
                                 return RedirectToAction("myProfile");
                             }
                         }
@@ -478,9 +487,9 @@ namespace La3bni.UI.Controllers
 
         public IActionResult ResetPassword()
         {
-
             return View("ResetPassword");
         }
+
         [HttpGet]
         public IActionResult ResetPasswordTokenCallBack(string email, string token)
         {
@@ -492,13 +501,13 @@ namespace La3bni.UI.Controllers
             var model = new ResetPasswordModel { Token = token, Email = email };
             return View(model);
         }
+
         [HttpPost]
         public async Task<IActionResult> ResetPasswordTokenCallBack(ResetPasswordModel passwordModel)
         {
-
             if (ModelState.IsValid)
             {
-                var user =  userManager.FindByEmailAsync(passwordModel.Email).Result;
+                var user = userManager.FindByEmailAsync(passwordModel.Email).Result;
                 if (user == null)
                 {
                     ModelState.AddModelError("", "Invalid Password Reset Token");
@@ -519,9 +528,9 @@ namespace La3bni.UI.Controllers
             else
                 return View(passwordModel);
         }
+
         public IActionResult SendResetPasswordEmail(IFormCollection form)
         {
-
             var email = form["Email"];
             var user = userManager.FindByEmailAsync(email).Result;
             if (user.EmailConfirmed)
@@ -530,12 +539,11 @@ namespace La3bni.UI.Controllers
                 var confirmationLink = Url.Action("ResetPasswordTokenCallBack", "Account", new { email = email, token = confirmationToken }, Request.Scheme);
                 emailRepository.sendEmail("Password Reset", $"Click below to change your password\n{confirmationLink}", new List<string> { email });
 
-                return RedirectToAction("Login");   
+                return RedirectToAction("Login");
             }
             else
                 ModelState.AddModelError("emailValidate", "Please Confirm Your Email first!");
             return View("ResetPassword");
         }
-
     }
 }

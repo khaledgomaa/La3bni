@@ -84,12 +84,9 @@ namespace La3bni.UI
 
             StripeConfiguration.ApiKey = configuration.GetSection("Stripe")["SecretKey"];
 
-
             app.UseStaticFiles();
 
             app.UseRouting();
-            app.UseAuthentication();
-            app.UseAuthorization();
 
             app.UseStaticFiles();
 
@@ -102,6 +99,7 @@ namespace La3bni.UI
             app.UseEndpoints(endpoints =>
             {
                 //endpoints.MapDefaultControllerRoute();
+
                 endpoints.MapControllerRoute(
                     name: "default",
                     pattern: "{controller=Home}/{action=Index}/{id?}");

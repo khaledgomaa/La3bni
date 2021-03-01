@@ -27,10 +27,11 @@ namespace La3bni.UI.Controllers
         {
             string userId = (await GetCurrentUser())?.Id;
             int curHour = GetCurrentHour();
+
             var myBookings = unitOfWork.BookingRepo.GetAllWithInclude()
                                                    .Where(a => a.ApplicationUserId == userId
                                                         && a.BookedDate.Date >= DateTime.Now.Date
-                                                        && a.PlaygroundTimes.From.Hour > curHour);
+                                                        && (a.BookedDate.Date == DateTime.Now.Date ? a.PlaygroundTimes.From.Hour > curHour : true));
             return View(myBookings);
         }
 
@@ -41,7 +42,7 @@ namespace La3bni.UI.Controllers
             var bookingDetails = unitOfWork.BookingTeamRepo.GetAllIQueryableWithInclude()
                                            .Where(a => a.ApplicationUserId == userId
                                            && a.Booking.BookedDate.Date >= DateTime.Now.Date
-                                           && a.Booking.PlaygroundTimes.From.Hour > curHour);
+                                           && (a.Booking.BookedDate.Date == DateTime.Now.Date ? a.Booking.PlaygroundTimes.From.Hour > curHour : true));
 
             return View(bookingDetails);
         }

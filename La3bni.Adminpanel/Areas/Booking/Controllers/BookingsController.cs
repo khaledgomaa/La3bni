@@ -26,6 +26,7 @@ namespace La3bni.Adminpanel.Areas.Booking.Controllers
 
         // GET: BookingsController/Details/5
         //[Route("Details/{id}")]
+        [Route("Details")]
         public async Task<ActionResult> Details(int id)
         {
             return View(await unitOfWork.BookingRepo.FindWithInclude(b => b.BookingId == id));
@@ -33,6 +34,7 @@ namespace La3bni.Adminpanel.Areas.Booking.Controllers
 
         // GET: BookingsController/Delete/5
         //[Route("Delete/{id}")]
+        [Route("Delete/{id}")]
         public async Task<ActionResult> Delete(int id)
         {
             return View(await unitOfWork.BookingRepo.FindWithInclude(b => b.BookingId == id));
@@ -42,6 +44,7 @@ namespace La3bni.Adminpanel.Areas.Booking.Controllers
         [HttpPost]
         //[Route("Delete/{id}")]
         [ValidateAntiForgeryToken]
+        [Route("Delete/{id}")]
         public async Task<ActionResult> Delete(int id, IFormCollection collection)
         {
             try

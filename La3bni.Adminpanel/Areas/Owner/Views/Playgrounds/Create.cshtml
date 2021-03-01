@@ -13,7 +13,7 @@
 <hr />
 <div class="row">
     <div class="col-md-4">
-        <form asp-action="Create" enctype="multipart/form-data">
+        <form asp-action="Create" enctype="multipart/form-data" class="container">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
             <div class="form-group">
@@ -87,11 +87,9 @@
                     <tr>
                         <td>
                             <input type="time" id="from" value="" />
-
                         </td>
                         <td>
                             <input type="time" id="to" value="" />
-
                         </td>
                         <td>
                             <input type="button" value="+" id="addDifferentPeriod" style="cursor:pointer" />

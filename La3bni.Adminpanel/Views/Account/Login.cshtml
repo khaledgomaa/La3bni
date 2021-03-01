@@ -1,0 +1,23 @@
+﻿<link href="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
+
+<link rel="stylesheet" href="~/assets/css/login.css" />
+<!------ Include the above in your HEAD tag ---------->
+
+<body>
+
+    <div class="wrapper fadeInDown">
+        <div id="formContent">
+            <!-- Tabs Titles -->
+            <!-- Login Form -->
+            <form asp-action="Login" method="post" asp-controller="Account">
+                <input type="text" required class="fadeIn second" name="UserName" placeholder="UserName">
+                <input type="password" required class="fadeIn third" name="pass" placeholder="Password">
+                <input type="submit" class="fadeIn fourth" value="Log In">
+            </form>
+
+            <!-- Remind Passowrd -->
+        </div>
+    </div>
+    @*<script src="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>*@
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+</body>

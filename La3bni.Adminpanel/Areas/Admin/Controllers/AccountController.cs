@@ -6,8 +6,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace La3bni.Adminpanel.Areas.Admin.Controllers
+namespace La3bni.Adminpanel.Controllers
 {
+    [Route("Admin")]
     public class AccountController : Controller
     {
         private readonly UserManager<ApplicationUser> userManager;
@@ -38,7 +39,7 @@ namespace La3bni.Adminpanel.Areas.Admin.Controllers
 
                     if (userRole == "Admin")
                     {
-                        return Redirect("Admin/Dashboard/Index");
+                        return RedirectToAction("Index", "Dashboard");
                     }
                     else if (userRole == "Owner")
                     {
