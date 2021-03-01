@@ -75,22 +75,35 @@
 
     @foreach (var item in Model)
     {
-        <div class="playGroundContainer">
-
-            <div class="hvrbox">
-                <img src="@(UrlConfig.GetSection("AdminPanelURL").Value+item.ImagePath)" asp-append-version="true" class="hvrbox-layer_bottom" />
-                <a asp-action="Index" asp-controller="Booking" asp-route-id="@item.PlaygroundId">
-                    <div class="hvrbox-layer_top">
-
-                        <div class="hvrbox-text">
-                            <span>Name : @Html.DisplayFor(modelItem => item.Name)</span><br />
-                            <span>City : @Html.DisplayFor(modelItem => item.City)</span><br />
-                            <span>Services : @Html.DisplayFor(modelItem => item.Services)</span><br />
-                        </div>
-                    </div>
-                </a>
+        <div class="col-4 stadiumsTitle-container">
+            <div class="item">
+                <div class="card item-card card-block">
+                    <a asp-action="Index" asp-controller="Booking" asp-route-id="@item.PlaygroundId">
+                        <img src="@(UrlConfig.GetSection("AdminPanelURL").Value+item.ImagePath)" alt="Stadium Image">
+                    </a>
+                        <h5 class="item-card-title mt-3 mb-3"></h5>
+                        <p class="card-text">
+                            This is a @Html.DisplayFor(modelItem => item.Name) stadium. it provides some services like @Html.DisplayFor(modelItem => item.Services)
+                            it is located in @Html.DisplayFor(modelItem => item.City)
+                        </p>
+                        <h3 class="item-card-title mt-3 mb-3"><a asp-action="Index" asp-controller="Booking" asp-route-id="@item.PlaygroundId">Book</a></h3>
+                 </div>
             </div>
-            <div class="HelloDiv"><span>@item.Name</span><span><a asp-action="Index" asp-controller="Booking" asp-route-id="@item.PlaygroundId">Book</a></span></div>
         </div>
     }
 </div>
+
+@*<div class="hvrbox">
+    <img src="@(UrlConfig.GetSection("AdminPanelURL").Value+item.ImagePath)" asp-append-version="true" class="hvrbox-layer_bottom" />
+    <a asp-action="Index" asp-controller="Booking" asp-route-id="@item.PlaygroundId">
+        <div class="hvrbox-layer_top">
+
+            <div class="hvrbox-text">
+                <span>Name : @Html.DisplayFor(modelItem => item.Name)</span><br />
+                <span>City : @Html.DisplayFor(modelItem => item.City)</span><br />
+                <span>Services : @Html.DisplayFor(modelItem => item.Services)</span><br />
+            </div>
+        </div>
+    </a>
+</div>
+<div class="HelloDiv"><span>@item.Name</span><span><a asp-action="Index" asp-controller="Booking" asp-route-id="@item.PlaygroundId">Book</a></span></div>*@
