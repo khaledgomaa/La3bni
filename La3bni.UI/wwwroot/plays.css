@@ -15,94 +15,106 @@
     margin-bottom: 50px
 }
 
-.playGroundContainer {
-    display: grid;
-    grid-template-columns: 1fr;
-    grid-row-gap: 3px;
-    border: 1px groove gray;
-    border-radius: 15px;
-}
-
-.stadiumsTitle {
-    text-align: left;
-    margin: 15px;
-    margin-left: 100px;
-}
-
-.hvrbox * {
-    box-sizing: border-box;
-}
-
-.hvrbox {
-    position: relative;
-    display: inline-block;
-    overflow: hidden;
-    width: 100%;
-    height: 250px;
-    border-radius: 15px;
-}
-
-    .hvrbox img {
-        width: 100%;
-        height: 100%;
-        transition: all 0.4s ease-in-out 0s;
-    }
-
-    .hvrbox .hvrbox-layer_bottom {
-        display: block;
-    }
-
-    .hvrbox .hvrbox-layer_top {
-        opacity: 0;
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0, 0, 0, 0.6);
-        color: #fff;
-        padding: 15px;
-        -moz-transition: all 0.4s ease-in-out 0s;
-        -webkit-transition: all 0.4s ease-in-out 0s;
-        transition: all 0.4s ease-in-out 0s;
-    }
-
-    .hvrbox .hvrbox-layer_bottom {
-        display: block;
-    }
-
-    .hvrbox .hvrbox-text {
-        text-align: center;
-        font-size: 18px;
-        display: inline-block;
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        -moz-transform: translate(-50%, -50%);
-        -webkit-transform: translate(-50%, -50%);
-        -ms-transform: translate(-50%, -50%);
-        transform: translate(-50%, -50%);
-    }
-
-    .hvrbox:hover .hvrbox-layer_top {
-        transform: scale(1.1);
-        opacity: 1;
-    }
-
-.HelloDiv {
-    font-size: 18pt;
-    font-family: Courier New, Courier, monospace;
-    color: black;
-    position: absolute;
-    margin-left: 2%;
-    margin-top: 16.5%;
-    display: flex;
-    width: 27%;
-    justify-content: space-between;
-}
-
 .myPadd {
     padding-top: 3%;
+}
+
+img {
+    height: 300px;
+    width: 100%;
+}
+
+.item {
+    padding-left: 5px;
+    padding-right: 5px;
+}
+
+.item-card {
+    transition: 0.5s;
+    cursor: pointer;
+}
+
+.item-card-title {
+    font-size: 15px;
+    transition: 1s;
+    cursor: pointer;
+}
+
+    .item-card-title i {
+        font-size: 15px;
+        transition: 1s;
+        cursor: pointer;
+        color: #ffa710
+    }
+
+.card-title i:hover {
+    transform: scale(1.25) rotate(100deg);
+    color: #18d4ca;
+}
+
+.card:hover {
+    transform: scale(1.05);
+    box-shadow: 10px 10px 15px rgba(0,0,0,0.3);
+}
+
+.card-text {
+    height: 80px;
+}
+
+.card::before, .card::after {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    transform: scale3d(0, 0, 1);
+    transition: transform .3s ease-out 0s;
+    background: rgba(255, 255, 255, 0.1);
+    content: '';
+    pointer-events: none;
+}
+
+.card::before {
+    transform-origin: left top;
+}
+
+.card::after {
+    transform-origin: right bottom;
+}
+
+.card:hover::before, .card:hover::after, .card:focus::before, .card:focus::after {
+    transform: scale3d(1, 1, 1);
+}
+
+
+/******Search Bar******/
+
+.mybody {
+    padding-top:8px;
+}
+
+.product {
+    margin-bottom: 30px;
+}
+
+.product-inner {
+    box-shadow: 0 0 10px rgba(0,0,0,.2);
+    padding: 10px;
+}
+
+.product img {
+    margin-bottom: 10px;
+}
+.searchclass {
+    opacity:0;
+}
+.displayFelex{
+    margin-left:80px;
+    display:flex;
+}
+.displayFelex > div{
+    margin-right:50px;
+}
+.stadiumsTitle{
+    margin-left:30px !important;
 }

@@ -121,10 +121,6 @@
                                 <th></th>
                             </tr>
                         }
-                        else
-                        {
-                            <br />
-                        }
                         <tr>
                             <td>
                                 <input type="time" id="from" value="" />
@@ -143,7 +139,7 @@
 
                 <input type="hidden" asp-for="ImagePath" id="ImagePath" class="form-control" />
             </div>
-            <div class="form-group">
+            <div>
                 <input type="button" value="Update" id="AddPlayground" class="btn btn-primary" />
             </div>
         </form>
@@ -153,7 +149,6 @@
 <div>
     <a asp-action="Index">Back to List</a>
 </div>
-
-@*@section Scripts {
-        @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
-    }*@
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

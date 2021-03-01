@@ -70,7 +70,9 @@ namespace La3bni.Adminpanel
 
                 endpoints.MapControllerRoute(
                     name: "default",
+
                     pattern: "{area=Admin}/{controller=Dashboard}/{action=Index}/{id?}"
+
                     );
             });
         }
