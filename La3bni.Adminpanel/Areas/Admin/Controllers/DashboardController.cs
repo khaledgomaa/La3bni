@@ -10,6 +10,7 @@ namespace La3bni.Adminpanel.Areas.Admin.Controllers
     //[Route("Admin/Dashboard")]
     public class DashboardController : Controller
     {
+
       //  [Route("")]
         public IActionResult Index()
         {

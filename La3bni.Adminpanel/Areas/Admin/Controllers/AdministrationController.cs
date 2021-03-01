@@ -30,7 +30,7 @@ namespace La3bni.Adminpanel.Areas.Admin.Controllers
             this.userManager = userManager;
             unitOfWork = _unitOfWork;
         }
-       
+
         public IActionResult Index()
         {
             return View();
