@@ -46,15 +46,5 @@
         <a asp-controller="Account" asp-action="EditProfile" asp-route-id="@Model.Id">
             <img src="~/images/Account/edit-info.png" />
         </a>
-
-        @if (Rolee == "Owner")
-        {
-
-            <a asp-controller="Account" asp-action="PlayGroundDiaplay" asp-route-id="@Model.Id">
-                <img src="~/images/Account/football-player.png" />
-            </a>
-
-            <br />
-        }
     </div>
 </aside>

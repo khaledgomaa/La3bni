@@ -13,6 +13,7 @@ using System.Threading.Tasks;
 
 namespace La3bni.UI.Controllers
 {
+    [Authorize(Roles = "Owner,Player")]
     public class AccountController : Controller
     {
         public string USERID = "";
@@ -41,6 +42,7 @@ namespace La3bni.UI.Controllers
             this.emailRepository = emailRepository;
         }
 
+        [AllowAnonymous]
         [AcceptVerbs("Get", "Post")]
         public async Task<IActionResult> Email_Unique(string email)
         {
@@ -52,6 +54,7 @@ namespace La3bni.UI.Controllers
             else return Json(false);
         }
 
+        [AllowAnonymous]
         [AcceptVerbs("Get", "Post")]
         public async Task<IActionResult> Name_Unique(string Username)
         {
@@ -63,7 +66,6 @@ namespace La3bni.UI.Controllers
             else return Json(false);
         }
 
-        [Authorize]
         public IActionResult NotifactionRead(int id)
         {
             var toUnread = unitOfWork.NotificationRepo.Find(n => n.NotificationId == id).Result;
@@ -74,7 +76,6 @@ namespace La3bni.UI.Controllers
             return RedirectToAction("Notification");
         }
 
-        [Authorize]
         public IActionResult NotifactionDelete(int id)
         {
             var toUnread = unitOfWork.NotificationRepo.Find(n => n.NotificationId == id).Result;
@@ -85,7 +86,6 @@ namespace La3bni.UI.Controllers
             return RedirectToAction("Notification");
         }
 
-        [Authorize]
         public async Task<IActionResult> Notification()
         {
             var user = await userManager.GetUserAsync(User);
@@ -95,12 +95,14 @@ namespace La3bni.UI.Controllers
             return View(n);
         }
 
+        [AllowAnonymous]
         [HttpGet]
         public IActionResult Register()
         {
             return View();
         }
 
+        [AllowAnonymous]
         [HttpPost]
         public async Task<IActionResult> Register(User user)
         {
@@ -180,6 +182,7 @@ namespace La3bni.UI.Controllers
             return View(user);
         }
 
+        [AllowAnonymous]
         public async Task<IActionResult> ConfirmEmail(string UserId, string token)
         {
             if (UserId == null || token == null)
@@ -220,6 +223,7 @@ namespace La3bni.UI.Controllers
             }
         }
 
+        [AllowAnonymous]
         [HttpPost]
         public IActionResult ExternalLogin(string provider)
         {
@@ -229,6 +233,7 @@ namespace La3bni.UI.Controllers
             return new ChallengeResult(provider, properties);
         }
 
+        [AllowAnonymous]
         public async Task<IActionResult> ExternalLoginCallBackAsync(string remoteError = null)
         {
             if (remoteError != null)
@@ -312,6 +317,7 @@ namespace La3bni.UI.Controllers
             }
         }
 
+        [AllowAnonymous]
         [HttpGet]
         public IActionResult login()
         {
@@ -319,6 +325,7 @@ namespace La3bni.UI.Controllers
             return View();
         }
 
+        [AllowAnonymous]
         [HttpPost]
         public async Task<IActionResult> login(LogIN user, string returnUrl)
         {
@@ -357,7 +364,6 @@ namespace La3bni.UI.Controllers
         }
 
         //[Authorize(Roles = "Player")]
-        [Authorize]
         public async Task<IActionResult> myProfile(ApplicationUser current)
         {
             var user = await userManager.GetUserAsync(User);
@@ -365,7 +371,6 @@ namespace La3bni.UI.Controllers
             return View(user);
         }
 
-        [Authorize]
         public IActionResult PlayGroundDiaplay(string id)
         {
             var AllBg = unitOfWork.PlayGroundRepo.GetAll().ToList();
@@ -374,7 +379,7 @@ namespace La3bni.UI.Controllers
             return View(Only_MyBg);
         }
 
-        [Authorize]
+        [AllowAnonymous]
         public async Task<IActionResult> logout()
         {
             await signInManager.SignOutAsync();
@@ -382,7 +387,6 @@ namespace La3bni.UI.Controllers
             return RedirectToAction("Index", "Home");
         }
 
-        [Authorize]
         public void UpdateNOtificationStatus(int notificationId)
         {
             Notification notification = unitOfWork.NotificationRepo.Find(n => n.NotificationId == notificationId)?.Result;
@@ -395,7 +399,6 @@ namespace La3bni.UI.Controllers
             }
         }
 
-        [Authorize]
         public IActionResult SeenNotifactions(List<Notification> id)
         {
             foreach (Notification item in id)
@@ -485,11 +488,13 @@ namespace La3bni.UI.Controllers
             return View(user);
         }
 
+        [AllowAnonymous]
         public IActionResult ResetPassword()
         {
             return View("ResetPassword");
         }
 
+        [AllowAnonymous]
         [HttpGet]
         public IActionResult ResetPasswordTokenCallBack(string email, string token)
         {
@@ -502,6 +507,7 @@ namespace La3bni.UI.Controllers
             return View(model);
         }
 
+        [AllowAnonymous]
         [HttpPost]
         public async Task<IActionResult> ResetPasswordTokenCallBack(ResetPasswordModel passwordModel)
         {
@@ -529,6 +535,7 @@ namespace La3bni.UI.Controllers
                 return View(passwordModel);
         }
 
+        [AllowAnonymous]
         public IActionResult SendResetPasswordEmail(IFormCollection form)
         {
             var email = form["Email"];
