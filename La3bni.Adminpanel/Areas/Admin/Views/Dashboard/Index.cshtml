@@ -1,1 +1,73 @@
-﻿<h1>Dashboard</h1>
+﻿@model StatisticsViewModel
+
+<h1>Dashboard</h1>
+
+<div class="row">
+    <div class="col-lg-3 col-md-6 col-sm-6">
+        <div class="card card-stats">
+            <div class="card-header card-header-success card-header-icon">
+                <div class="card-icon">
+                    <i class="material-icons">store</i>
+                </div>
+                <p class="card-category">Players</p>
+                <h3 class="card-title">@Model.NumberOfPlayers</h3>
+            </div>
+            <div class="card-footer">
+                <div class="stats">
+                    <!-- <i class="material-icons">date_range</i> Last 24 Hours -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-3 col-md-6 col-sm-6">
+        <div class="card card-stats">
+            <div class="card-header card-header-success card-header-icon">
+                <div class="card-icon">
+                    <i class="material-icons">info_outline</i>
+                </div>
+                <p class="card-category">Owners</p>
+                <h3 class="card-title">@Model.NumberOfOwners</h3>
+            </div>
+            <div class="card-footer">
+                <div class="stats">
+                    <!-- <i class="material-icons">date_range</i> Last 24 Hours -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-3 col-md-6 col-sm-6">
+        <div class="card card-stats">
+            <div class="card-header card-header-success card-header-icon">
+                <div class="card-icon">
+                    <i class="material-icons">store</i>
+                </div>
+                <p class="card-category">Stadiums</p>
+                <h3 class="card-title">@Model.NumberOfStadiums</h3>
+            </div>
+            <div class="card-footer">
+                <div class="stats">
+                    <!-- <i class="material-icons">date_range</i> Last 24 Hours -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-3 col-md-6 col-sm-6">
+        <div class="card card-stats">
+            <div class="card-header card-header-success card-header-icon">
+                <div class="card-icon">
+                    <i class="material-icons">store</i>
+                </div>
+                <p class="card-category">Bookings</p>
+                <h3 class="card-title">@Model.NumberOfBookings</h3>
+            </div>
+            <div class="card-footer">
+                <div class="stats">
+                    <!-- <i class="material-icons">date_range</i> Last 24 Hours -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
