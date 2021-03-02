@@ -4,10 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Models;
 using Models.ViewModels;
 using Repository;
-using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace La3bni.Adminpanel.Areas.Admin.Controllers
 {
