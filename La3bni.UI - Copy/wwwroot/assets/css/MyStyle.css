@@ -1,0 +1,151 @@
+﻿*{
+    user-select:none;
+}
+/*body{
+    overflow:hidden;
+}*/
+
+.news-card{
+    border:2px black solid;
+    
+    position:relative;
+    width:100%;
+    height:30%
+}
+
+.news-image {
+    width: 70%;
+    object-fit: contain;
+    object-position: bottom;
+    box-shadow: 5px 5px 15px 0px black;
+    transition-duration:0.5s;
+}
+.news-image:hover{
+    transform:scale(1.02);
+}
+ul.actions>li{
+    width:150px;
+}
+.news.row.col->div{
+    position: relative;
+}
+.container.row.col-.div.news-element1 {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    z-index: 1;
+}
+ul.link-button {
+    position: absolute;
+    bottom: 10px;
+    right: 45%;
+    /*background-color: white;*/
+    z-index: 1;
+}
+p.news-element1 {
+    position: absolute;
+    width: 448px;
+    /*top:39%;*/
+    overflow: hidden;
+    height: 35px;
+    max-width: 448px;
+    top: 60%;
+    margin: 0 0 0 0;
+    /*    font-display:fallback;
+    font-size:19pt;
+    text-align:center;
+    color:white;
+    font-weight:900;
+    font-family:cursive;*/
+    z-index: 5;
+}
+p.news-element2 {
+    margin: 0 0 0 0;
+}
+div.button-container {
+    position: relative;
+}
+section#one {
+    padding: 1em 0 0em 0;
+}
+
+div.playground-image{
+    position: relative;
+}
+div.right-article{
+    position:relative;
+}
+img.plyground-card-image {
+    box-shadow: 5px 5px 15px 0px black;
+    cursor:pointer;
+    transition-duration: 0.5s;
+}
+img.plyground-card-image:hover {
+    transform:scale(1.02);
+}
+@keyframes show{
+    from{
+        opacity:0;
+    }
+    to{
+        opacity:1;
+    }
+}
+ul.list-group-item-info {
+    position: absolute;
+    top: 3%;
+    left: 20%;
+    background-color: transparent;
+    font-family: 'Merienda One';
+    color: white;
+    font-size: 16pt;
+    text-align: center;
+    list-style: none;
+}
+
+section#two{
+    position:relative;
+    padding: 1em 0 0em 0;
+}
+header.section-two-header {
+   /* position: absolute;*/
+    /*display:inline-block;*/
+    /*left:5%;*/
+   
+}
+header.section-two-header>h3{
+    margin-left:11%;
+    margin-bottom:0px;
+}
+
+.main-page{
+    /*overflow-y:scroll;*/
+}
+
+
+
+.stars-outer {
+    display: inline-block;
+    position: relative;
+    font-family: FontAwesome;
+    border:2px solid black;
+    background-color:red;
+}
+
+.stars-outer::before {
+    content: "\f006 \f006 \f006 \f006 \f006";
+}
+
+.stars-inner {
+    position: absolute;
+    top: 0;
+    left: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    width: 50%;
+}
+
+.stars-inner::before {
+    content: "\f005 \f005 \f005 \f005 \f005";
+    color: #f8ce0b;
+}

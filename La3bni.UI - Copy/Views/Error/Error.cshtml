@@ -1,0 +1,21 @@
+﻿
+<section style="padding:10%;">
+
+    @if (ViewBag.ErrorTitle == null)
+    {
+    <h3>
+        @ViewBag.ErrorMessage
+    </h3>
+        <h5>
+            Please <a style="color:blue" href="mailto:La3bniKoora@gmail.com">Contact Us</a> for more details.
+        </h5>
+    }
+    else
+    {
+        <h1 class="text-danger">@ViewBag.ErrorTitle</h1>
+        <h5 class="text-danger">@ViewBag.ErrorMessage</h5>
+        <h5>
+            Please <a style="color:blue" href="mailto:La3bniKoora@gmail.com">Contact Us</a> for more details.
+        </h5>
+    }
+</section>

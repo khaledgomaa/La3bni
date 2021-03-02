@@ -1,0 +1,50 @@
+﻿@using Repository
+@inject UserManager<ApplicationUser> userManager;
+
+@model Models.ApplicationUser
+@{
+    ViewBag.Title = "User Profile";
+    string imgPath = "~/AppImages/" + @Model.ImagePath;
+
+    var roles = userManager.GetRolesAsync(Model).Result.ToList();
+    string Rolee = roles[0];
+}
+
+@section Styles{
+    <link href="~/assets/css/profile.css" rel="stylesheet" />
+}
+@{
+
+}
+<aside class="profile-card">
+    <header>
+        <!-- here’s the avatar -->
+        <h5>Personal Info</h5>
+        <a target="_blank" href="#">
+
+            <img src=@Url.Content(imgPath) />
+        </a>
+
+        <!-- the username -->
+    </header>
+
+    <!-- bit of a bio; who are you? -->
+
+    <div class="profile-bio">
+        <h4>
+            UserName:  @Model.UserName
+        </h4>
+
+        <p style="color: #FFD724">
+            @Rolee
+        </p>
+
+        <p> Email : @Model.Email</p>
+        <p> Gender : @Model.Gender</p>
+        <p> City : @Model.City</p>
+        <p> Phone Number  : @Model.PhoneNumber</p>
+        <a asp-controller="Account" asp-action="EditProfile" asp-route-id="@Model.Id">
+            <img src="~/images/Account/edit-info.png" />
+        </a>
+    </div>
+</aside>

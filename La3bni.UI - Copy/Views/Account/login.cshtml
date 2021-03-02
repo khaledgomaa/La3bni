@@ -1,0 +1,96 @@
+﻿@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor;
+@{
+    Layout = null;
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/assets/css/login.css" />
+    <script src="~/assets/js/login.js"></script>
+}
+<link rel="stylesheet" href="~/assets/css/login.css" />
+<script src="~/assets/js/login.js"></script>
+
+@model Models.LogIN
+@{
+    ViewBag.Title = "Login";
+}
+
+<div class="login-box">
+    <h2>Login</h2>
+
+    <div class="row">
+        <div class="col-md-4">
+
+            <form asp-action="Login" asp-route-returnUrl="@HttpContextAccessor.HttpContext.Request.Query["returnUrl"]" enctype="multipart/form-data">
+                <div class="user-box">
+                    <div class="form-group">
+
+                        <input asp-for="Email" required/>
+                        <label > Email or Username</label>
+                        <span asp-validation-for="Email" class="text-danger"></span>
+                    </div>
+                </div>
+                <br />
+                <br />
+                <br />
+
+                <div class="user-box">
+                    <div class="form-group">
+                        <input asp-for="Password"  required/>
+                        <label>Password</label>
+
+                        <span asp-validation-for="Password" class="text-danger"></span>
+                    </div>
+                </div>
+                <br />
+                <br />
+                <br />
+
+
+             
+                <div @*class="user-box"*@>
+                   
+                    <label for="remeber"> Remember Me  <input asp-for="rememberMe" type="checkbox" id="remeber" name="rememberMe"> </label>
+
+                </div>
+                <div >
+                    <a style="color:#03e9f4" asp-action="ResetPassword">Forgot my password</a>
+                </div>
+                <div class="Linky">
+                    <span></span>
+                    <span></span>
+                    
+                    <span> </span>
+                    <span></span>
+
+                    <input type="submit" value="Login" id="submitt" style="color:white" />
+
+                </div>
+            </form>
+            <hr />
+            <div class="external-logins">
+                <form asp-action="ExternalLogin" asp-controller="Account" method="post">
+                    <div>
+                        @foreach (var provider in ViewBag.ExternalLogins)
+                        {
+                            <div class="Linky">
+                                <span></span>
+                                <span></span>
+                                <span></span>
+                                <span></span>
+                                <button type="submit" id="submitt" name="provider"
+                                        value="@provider.Name" title="Login using your @provider.DisplayName account"  style="color:white" >
+                                    @provider.DisplayName
+                                   
+                                </button>
+                                </div>
+                        }
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="~/lib/jquery/jquery.js"></script>
+<script src="~/lib/jquery-validate/jquery.validate.js"></script>
+<script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.js"></script>
