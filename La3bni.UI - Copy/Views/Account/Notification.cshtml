@@ -1,0 +1,49 @@
+﻿@model IEnumerable<Models.Notification>
+@using La3bni.Repository
+@inject Repository.IUnitOfWork unitOfWork;
+@{
+    ViewData["Title"] = "Notification";
+}
+<br />
+<br />
+<br />
+<h3> Your Notifications </h3>
+
+<style>
+    body {
+        text-align: center;
+        
+       
+    }
+</style>
+<ul>
+    @foreach (var item in Model)
+    {
+        
+           
+
+                <div>
+                    <h6 style="color:black">
+                        @Html.DisplayFor(modelItem => item.Title)
+
+                        @Html.DisplayFor(modelItem => item.Body)
+                        &nbsp; &nbsp;
+                        <a asp-action="NotifactionRead" asp-route-id="@item.NotificationId">
+
+
+                            <img src="~/images/Account/unseen32.png" />
+                        </a>
+                        &nbsp; 
+                        <a asp-action="NotifactionDelete" asp-route-id="@item.NotificationId">
+
+                            <img src="~/images/Account/delete.png" />
+                        </a>
+                    </h6>
+                    <hr />
+                </div>
+            
+     
+
+
+    }
+</ul>

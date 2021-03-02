@@ -1,0 +1,14 @@
+﻿.customStar {
+    color: aliceblue;
+    cursor: pointer;
+    font-size: 45px;
+}
+
+label {
+    color: black;
+}
+
+#message {
+    color: red;
+    font-size: 13px;
+}

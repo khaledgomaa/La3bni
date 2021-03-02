@@ -92,8 +92,8 @@
                         </tr>
                         @foreach (var playgroundTimes in times)
                         {
-                            var from = (@playgroundTimes.From).ToString("hh:mm");
-                            var to = (@playgroundTimes.To).ToString("hh:mm");
+                            var from = (@playgroundTimes.From).ToString("HH:mm");
+                            var to = (@playgroundTimes.To).ToString("HH:mm");
                             <tr>
                                 <td><input type="time" value="@from" /></td>
                                 <td><input type="time" value="@to" /></td>
