@@ -1,0 +1,112 @@
+﻿@model IEnumerable<Models.Playground>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+@using Microsoft.Extensions.Configuration
+@inject IConfiguration UrlConfig
+
+<link rel="stylesheet" href="~/plays.css" />
+
+@*******************************************************************@
+<style class="cp-pen-styles"></style>
+    <div class="container">
+
+
+        @* just fixing the layout *@
+        @* ************************* *@
+        <div class="row" id="search">
+            <form id="search-form" action="" method="POST" enctype="multipart/form-data">
+                <div class="form-group col-xs-9">
+                    <input class="form-control" type="text" placeholder="Search" />
+                </div>
+                <div class="form-group col-xs-3">
+                    <button type="submit" class="btn btn-block btn-primary">Search</button>
+                </div>
+            </form>
+        </div>
+         @* ************************* *@
+
+
+        
+    <form asp-action="Index" method="get">
+        <div class="displayFelex">
+
+            <div class="form-group">
+
+                <select name="PlaygroundName" class="form-control">
+                    <option selected value="">select stadium</option>
+                    @foreach (var stadium in Model)
+                    {
+                        string stdName = stadium?.Name;
+                        if (stdName == @ViewData["PName"]?.ToString())
+                        {
+                            <option selected value="@stdName">@stdName</option>
+                        }
+                        else
+                        {
+                            <option value="@stdName">@stdName</option>
+                        }
+
+                    }
+                </select>
+            </div>
+
+
+            <div class="form-group">
+               
+                  <select name="city" class="form-control">
+                        <option selected value="">select city</option>
+                        @foreach (City city in Enum.GetValues(typeof(City)))
+                        {
+                            if (@ViewData["city"]?.ToString() == city.ToString())
+                            {
+                                <option selected value="@city">@city</option>
+                            }
+                            else
+                            {
+                                <option value="@city">@city</option>
+                            }
+
+                        }
+                    </select>
+            </div>
+
+            <div class="form-group">
+                <input class="form-control" placeholder=" search price" type="number" name="price" value="@ViewData["Price"]" min="40" />
+            </div>
+
+            <div class="form-group">
+                <button type="submit" class="btn btn-primary" style="max-height:35px !important">Search</button>|<a asp-action="Index" class="btn btn-primary">Display All</a>
+            </div>
+        </div>
+    </form>    
+ </div>
+
+    @*****************************************************************************@
+
+
+    <h1 class="stadiumsTitle"> Stadiums </h1>
+
+    <div class="mainConatainerPlayGround">
+
+        @foreach (var item in Model)
+        {
+            <div class="col-4 stadiumsTitle-container">
+                <div class="item">
+                    <div class="card item-card card-block">
+                        <a asp-action="Index" asp-controller="Booking" asp-route-id="@item.PlaygroundId">
+                            <img src="@(UrlConfig.GetSection("AdminPanelURL").Value+item.ImagePath)" alt="Stadium Image">
+                        </a>
+                        <h5 class="item-card-title mt-3 mb-3"></h5>
+                        <p class="card-text">
+                            This is a @Html.DisplayFor(modelItem => item.Name) stadium. it provides some services like @Html.DisplayFor(modelItem => item.Services)
+                            it is located in @Html.DisplayFor(modelItem => item.City)
+                        </p>
+                        <h3 class="item-card-title mt-3 mb-3"><a asp-action="Index" asp-controller="Booking" asp-route-id="@item.PlaygroundId">Book</a></h3>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>

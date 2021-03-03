@@ -20,11 +20,11 @@
     List<Playground> Offers = Playgrounds.Where(d => d.IsOffered == 1).ToList();
 }
 
-<link rel="stylesheet" href="~/plays.css" />
-
 <link href="~/assets/css/MyStyle.css" rel="stylesheet" />
 
 <link href="~/lib/fontawesome-iconpicker/css/fontawesome-iconpicker.css" rel="stylesheet" />
+
+<link rel="stylesheet" href="~/plays.css" />
 
 <section class="banner full">
 
@@ -34,7 +34,7 @@
             <img src="@config["AdminPanelUrl"]/@playground.ImagePath" alt="" />
             <div class="inner1">
                 <header>
-                    <p>Our Rate @playground.Rate /5  - Area @playground.StadiumArea Created on  @playground.CreatedOn </p>
+                    <p>Our Rate @playground.Rate /5  - Area @playground.StadiumArea Created on  @playground.CreatedOn.ToString("d") </p>
                     <h2>@playground.Name</h2>
                 </header>
             </div>
@@ -60,72 +60,25 @@
                         This is a @Html.DisplayFor(modelItem => item.Name) stadium. it provides some services like @Html.DisplayFor(modelItem => item.Services)
                         it is located in @Html.DisplayFor(modelItem => item.City)
                     </p>
+                    @{
+                        var size = $"{item.Rate / 5 * 100}%";
+
+                        <div class="star-ratings">
+
+                            <div class="fill-ratings" style="width:@size">
+                                <span>★★★★★</span>
+                            </div>
+                            <div class="empty-ratings">
+                                <span>★★★★★</span>
+                            </div>
+                        </div>
+                    }
                     <h3 class="item-card-title mt-3 mb-3"><a asp-action="Index" asp-controller="Booking" asp-route-id="@item.PlaygroundId">Book</a></h3>
                 </div>
             </div>
         </div>
     }
 </div>
-<!-- Playground Offers -->
-@*<section id="two">
-
-        <header class="section-two-header">
-            <h3>Playground Offers</h3>
-        </header>
-        @for (int i = 0; i < Offers?.Count; i += 2)
-        {
-            <div class="inner">
-                <article>
-                    <div class="content">
-                        <header>
-                            <h3>@Offers[i].Name</h3>
-                        </header>
-                        <div class="image fit playground-image">
-                            <a asp-action="Index" asp-controller="Booking" asp-route-id="@Offers[i].PlaygroundId">
-                                <img class="plyground-card-image" src="@config["AdminPanelUrl"]/@Offers[i].ImagePath" alt="@Offers[i].Name Image" />
-                            </a>
-                            <ul class="list-group-item-info">
-                                <li>Rate @Offers[i].Rate</li>
-                                <li>Services @((Services)Offers[i].Services)</li>
-                                <li>StadiumArea @Offers[i].StadiumArea</li>
-                                <li>NumOfPlayers @Offers[i].NumOfPlayers</li>
-                                <li>PmPrice @Offers[i].PmPrice</li>
-                                <li>AmPrice @Offers[i].AmPrice</li>
-                            </ul>
-                        </div>
-                    </div>
-                </article>
-                <div class="star-outer">
-                    <div class="star-inner"></div>
-                </div>
-                @{
-                    if (Offers.Count != i + 1) //if it's not the last image --just to be shure that i handled out of bound execption
-                    {
-                        <article class="alt">
-                            <div class="content">
-                                <header>
-                                    <h3>@Offers[i + 1].Name</h3>
-                                </header>
-                                <div class="image fit right-article">
-                                    <a asp-action="Index" asp-controller="Booking" asp-route-id="@Offers[i].PlaygroundId">
-                                        <img class="plyground-card-image" src="@config["AdminPanelUrl"]/@Offers[i+1].ImagePath" alt="@Offers[i+1].Name Image" />
-                                    </a>
-                                    <ul class="list-group-item-info">
-                                        <li>Rate @Offers[i + 1].Rate</li>
-                                        <li>Services @((Services)Offers[i+1].Services)</li>
-                                        <li>StadiumArea @Offers[i + 1].StadiumArea</li>
-                                        <li>NumOfPlayers @Offers[i + 1].NumOfPlayers</li>
-                                        <li>PmPrice @Offers[i + 1].PmPrice</li>
-                                        <li>AmPrice @Offers[i + 1].AmPrice</li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </article>
-                    }
-                }
-            </div>
-        }
-    </section>*@
 
 <!-- Football News -->
 <section id="one">
@@ -169,3 +122,63 @@
         </div>
     </div>
 </section>
+
+@* Subscribe us button *@
+
+<style>
+    #myModal {
+        position: fixed;
+        bottom: 0;
+        right: 0;
+        z-index: 1000;
+    }
+</style>
+<!-- Button trigger modal -->
+<button id="myModal" type="button" class="btn btn-primary " data-toggle="modal" data-target="#exampleModal">
+    Subscribe
+</button>
+
+<!-- Modal -->
+<div class="modal fade modalClosing" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="exampleModalLabel">Get Notified</h4>
+            </div>
+            <form name="myEmailForm" action="#" method="post">
+                <div class="modal-body">
+                    <label>Email:</label>
+                    <input type="email" required name="email" value="" />
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Subscribe</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+
+    $(function () {
+        $("form[name='myEmailForm']").on('submit', function (e) {
+            e.preventDefault();
+            $('.modalClosing').modal("hide");
+
+            var email = $("input[name='email']").val()
+            $.ajax({
+                url: '/Home/AddToSubscribers/',
+                type: 'POST',
+                data: { email: email },
+
+                dataType: 'json'
+            });
+            $("input[name='email']").val("");
+        })
+
+    });
+
+    var star_rating_width = $('.fill-ratings span').width();
+    $('.star-ratings').width(star_rating_width);
+</script>

@@ -1,0 +1,60 @@
+﻿@model List<Models.Playground>
+
+@{
+    ViewData["Title"] = "PlayGroundDiaplay";
+}
+
+<h1>PlayGroundDiaplay</h1>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+
+
+@foreach (var item in Model) {
+<div>
+    <h2>
+        @item.PlaygroundId
+    </h2>
+    <h3>
+        @item.AmPrice
+    </h3>
+   <h3> @item.Name</h3>
+   <h3> @item.City </h3>
+
+
+
+
+
+    @*@Html.DisplayFor(modelItem => item.Name)
+
+        @Html.DisplayFor(modelItem => item.City)
+
+        @Html.DisplayFor(modelItem => item.StadiumArea)
+
+        @Html.DisplayFor(modelItem => item.NumOfPlayers)
+
+        @Html.DisplayFor(modelItem => item.AmPrice)
+
+        @Html.DisplayFor(modelItem => item.PmPrice)
+
+        @Html.DisplayFor(modelItem => item.Services)
+
+        @Html.DisplayFor(modelItem => item.Rate)
+
+        @Html.DisplayFor(modelItem => item.PlaygroundStatus)
+
+        @Html.DisplayFor(modelItem => item.IsOffered)
+
+        @Html.DisplayFor(modelItem => item.CreatedOn)
+
+        @Html.DisplayFor(modelItem => item.ImagePath)*@
+
+
+    @*@Html.ActionLink("Edit", "Edit", new { /* id=item.PrimaryKey */ }) |
+        @Html.ActionLink("Details", "Details", new { /* id=item.PrimaryKey */ }) |
+        @Html.ActionLink("Delete", "Delete", new { /* id=item.PrimaryKey */ })*@
+
+</div>
+}
+   

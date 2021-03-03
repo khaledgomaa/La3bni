@@ -1,0 +1,192 @@
+﻿@model Models.User
+@{
+    ViewBag.Title = "User Registration";
+
+    var cities = new List<object>();
+    foreach (Models.City cityy in Enum.GetValues(typeof(Models.City)))
+    {
+        string CITY = (cityy.ToString());
+        cities.Add(Enum.Parse(typeof(Models.City), CITY));
+    }
+
+}
+@section Styles {
+
+    <link href="~/assets/css/Register.css" rel="stylesheet" />
+    }
+
+
+
+
+<div class="signupSection">
+    <br /><br />
+          <h4>
+              <img src="~/images/Account/sign-up.png" />  
+          </h4>
+    
+    <form asp-action="Register" enctype="multipart/form-data" style="border:5px thick">
+        <div asp-validation-summary="All" class="text-danger"></div>
+
+
+        <div class="form-group">
+            <select asp-for="UserType">
+                @*<option> Select join as </option>*@
+                <option>@UserType.Player</option>
+                <option>@UserType.Owner</option>
+            </select>
+
+            <span asp-validation-for="UserType" class="text-danger"></span>
+
+        </div>
+
+        <div class="form-group">
+
+            <input asp-for="Username" class="form-control" placeholder="User Name" />
+            <span asp-validation-for="Username" class="text-danger"></span>
+        </div>
+
+        <div class="form-group">
+            @*<label asp-for="Email" class="control-label"></label>*@
+            <input asp-for="Email" class="form-control" placeholder="Email Address" />
+            <span asp-validation-for="Email" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            @*<label asp-for="Password" class="control-label"></label>*@
+            <input asp-for="Password" class="form-control" placeholder="Password" />
+            <span asp-validation-for="Password" class="text-danger"></span>
+        </div>
+
+        <div class="form-group">
+            @*<label asp-for="ConfirmPassword" class="control-label"></label>*@
+            <input asp-for="ConfirmPassword" class="form-control" placeholder="Confirm Password" />
+            <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+        </div>
+
+        <div class="form-group">
+            @*<label asp-for="PhoneNumber" class="control-label"></label>*@
+            <input asp-for="PhoneNumber" class="form-control" placeholder="Mobile Number" />
+            <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+        </div>
+
+        <div class="form-group">
+            @*<label asp-for="City" class="control-label"></label>*@
+
+            <select asp-for="City"
+                    asp-items="@(new SelectList(cities))">
+                @*<option>Please select Your City </option>*@
+            </select>
+            <span asp-validation-for="City" class="text-danger"></span>
+        </div>
+
+        <div class="form-group">
+            @*<label asp-for="Gender" class="control-label"></label>*@
+
+            <select asp-for="Gender">
+                @*<option>Please select Your Gender </option>*@
+                <option>@Gender.Male</option>
+                <option>@Gender.Female</option>
+            </select>
+            <span asp-validation-for="Gender" class="text-danger"></span>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="ImageFile" class="control-label"></label>
+            <input asp-for="ImageFile" accept="image/*" />
+            <span asp-validation-for="ImageFile" class="text-danger"></span>
+        </div>
+
+        <section class="buttons">
+
+
+            <!--End of Button 2 -->
+            <input type="submit" value="register" class="btn btn-2" />
+
+
+        </section>
+
+
+
+    </form>
+
+</div>
+
+@*<h2>User Register</h2>
+
+    <hr />
+    <div class="row">
+        <div class="col-md-4">
+            <form asp-action="Register" enctype="multipart/form-data">
+                <div asp-validation-summary="All" class="text-danger"></div>
+                <div class="form-group">
+                    <label> Choose Join as : </label>
+                    <label asp-for="UserType" class="control-label"></label>
+
+                    <select asp-for="UserType">
+
+                        <option>@UserType.Player</option>
+                        <option>@UserType.Owner</option>
+                    </select>
+                    <span asp-validation-for="UserType" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Username" class="control-label"></label>
+                    <input asp-for="Username" class="form-control" />
+                    <span asp-validation-for="Username" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Email" class="control-label"></label>
+                    <input asp-for="Email" class="form-control" />
+                    <span asp-validation-for="Email" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="Password" class="control-label"></label>
+                    <input asp-for="Password" class="form-control" />
+                    <span asp-validation-for="Password" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="ConfirmPassword" class="control-label"></label>
+                    <input asp-for="ConfirmPassword" class="form-control" />
+                    <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="PhoneNumber" class="control-label"></label>
+                    <input asp-for="PhoneNumber" class="form-control" />
+                    <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="City" class="control-label"></label>
+
+                    <select asp-for="City"
+                            asp-items="@(new SelectList(cities))">
+                        <option>Please select one</option>
+                    </select>
+                    <span asp-validation-for="City" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Gender" class="control-label"></label>
+
+                    <select asp-for="Gender">
+
+                        <option>@Gender.Male</option>
+                        <option>@Gender.Female</option>
+                    </select>
+                    <span asp-validation-for="Gender" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="ImageFile" class="control-label"></label>
+                    <input asp-for="ImageFile" accept="image/*" />
+                    <span asp-validation-for="ImageFile" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <input type="submit" value="Register" class="btn btn-primary" />
+                </div>
+            </form>
+        </div>
+    </div*@>

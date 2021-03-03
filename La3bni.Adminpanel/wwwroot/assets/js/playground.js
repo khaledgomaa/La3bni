@@ -16,10 +16,9 @@
         document.getElementById("timesRecord").style.display = "block";
         $("#header").css("display", "none");
         $("#table2").css("margin-top", "15px");
-
-        var hoursfrom = $("#from").val().split(":");   // to ge hours and minutes seperately 
-        var hoursto = $("#to").val().split(":");
-
+        
+       var hoursfrom = $("#from").val();   // to ge hours and minutes seperately 
+       var hoursto = $("#to").val();
 
         // add this record to table in the view 
         var timesrecords = "<tr><td>" + "<input disabled type='text' value=" + $("#from").val() /*new Date($("#from").val()).toLocaleTimeString()*/ + "></td><td>" + "<td><input disabled type='text' value=" + $("#to").val() /*new Date($("#to").val()).toLocaleTimeString()*/ + "></td><td></td></tr>"
@@ -27,14 +26,33 @@
 
         // Create object  similar to playgroundObject add times to it
         /// get the current time(hours & minutes) and convert it to datetime
-        var From = new Date();
-        var To = new Date();
-        From.setHours(parseInt(hoursfrom[0]), parseInt(hoursfrom[1]));
-        To.setHours(parseInt(hoursto[0]), parseInt(hoursto[1]));
+
+        let [hours, minutes] = hoursfrom.split(':');
+        let [hours1, minutes1] = hoursto.split(':');
+
+        if (hours1 - hours < 1)
+            return;
+
+        let Frominput = new Date();
+        let Toinput = new Date();
+
+
+        Frominput.setHours(+hours + 2);
+        Frominput.setMinutes(minutes);
+
+        Toinput.setHours(+hours1 + 2);
+        Toinput.setMinutes(minutes1);
+
+
+        // create object to store the updated attributes
 
         var PlaygroundTimes = {};
-        PlaygroundTimes.From = From;
-        PlaygroundTimes.To = To;
+        PlaygroundTimes.From = Frominput;
+        PlaygroundTimes.To = Toinput;
+        PlaygroundTimes.State = hours > 11 ? 1 : 0;
+
+
+
         playgroundtimesList.push(PlaygroundTimes);
 
 
@@ -157,21 +175,38 @@ function deleteRecorde(obj, timesID) {
 function updateRecorde(obj, timesID) {
    
     ///get the hours and mintues (time)  and convert them to the current date
-    var hoursfrom = obj.parentNode.parentNode.children[0].children[0].value.split(":");
-    var hoursto = obj.parentNode.parentNode.children[1].children[0].value.split(":");
 
-    var From = new Date();
-    var To = new Date();
     
-    From.setHours(parseInt(hoursfrom[0]), parseInt(hoursfrom[1]));
-    To.setHours(parseInt(hoursto[0]), parseInt(hoursto[1]));
+    var hoursfrom = obj.parentNode.parentNode.children[0].children[0].value;
+    var hoursto = obj.parentNode.parentNode.children[1].children[0].value;
+
+    let [hours, minutes] = hoursfrom.split(':');
+    let [hours1, minutes1] = hoursto.split(':');
+
+    if (hours1 - hours < 1)
+        return;
+
+    let Frominput = new Date();
+    let Toinput = new Date();
+
+
+    Frominput.setHours(+hours + 2);
+    Frominput.setMinutes(minutes);
+
+    Toinput.setHours(+hours1 + 2);
+    Toinput.setMinutes(minutes1);
+
 
     // create object to store the updated attributes
-    
+
     var PlaygroundTimes = {};
-    PlaygroundTimes.From = From;
-    PlaygroundTimes.To = To;
+    PlaygroundTimes.From = Frominput;
+    PlaygroundTimes.To = Toinput;
     PlaygroundTimes.PlaygroundTimesId = timesID;
+    PlaygroundTimes.State = hours > 11 ? 1 : 0;
+
+    alert("here");
+
     $.ajax({
         type:'POST',
         dataType: 'text',
@@ -180,7 +215,7 @@ function updateRecorde(obj, timesID) {
             playgroundtimesinfo: JSON.stringify(PlaygroundTimes)
         },
         success: function (data) {
-            console(data);
+            console.log("ok");
         },
         error: function () {
             alert("something wrong Happens");

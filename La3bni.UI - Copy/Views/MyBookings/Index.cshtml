@@ -1,0 +1,97 @@
+﻿@model IEnumerable<Booking>
+@inject IConfiguration config
+@using La3bni.UI.Payment
+@using Microsoft.Extensions.Options
+@inject IOptions<StripeSettings> stripe
+
+<link rel="stylesheet" href="~/Booking/css/teams.css" />
+<script src="https://polyfill.io/v3/polyfill.min.js?version=3.52.1&features=fetch"></script>
+<script src="https://js.stripe.com/v3/"></script>
+
+<div class="container">
+    <div class="row center">
+        <div class="panel panel-info" style="width:100%">
+            <div class="panel-heading">
+            </div>
+            <div class="panel-body">
+                @foreach (var bookingDetails in Model)
+                {
+
+                    <div class="row pad-elements">
+                        <div class="col-md-1">
+                            <img class="img-responsive" src="@string.Concat(@config.GetSection("AdminPanelUrl").Value,bookingDetails.Playground.ImagePath)">
+                        </div>
+                        <div class="col-md-1">
+                            <h4 class="product-name"><strong>@bookingDetails.Playground.Name</strong></h4>
+                        </div>
+                        <div class="col-md-2">
+                            <h4 class="product-name"><strong>@bookingDetails.BookedDate.ToString("d")</strong></h4>
+                        </div>
+                        <div class="col-md-2">
+                            <h4 class="product-name"><strong>@bookingDetails.PlaygroundTimes</strong></h4>
+                        </div>
+                        <div class="col-md-6 posBtn">
+                            @if (bookingDetails.Paid == 0)
+                            {
+                                <div class="col-md-3 btnCancel">
+                                    <form asp-action="CancelBooking" asp-controller="MyBookings" asp-route-bookingId="@bookingDetails.BookingId">
+
+                                        <input type="submit" value="Cancel booking" style="padding: 0;" class="btn btn-danger btn-block" />
+                                    </form>
+                                </div>
+
+                                <div class="col-md-3 btnCheck">
+
+                                    @*<form method="post" asp-action="Charge" asp-controller="Payment" asp-route-usdCurrency="@bookingDetails.Price" asp-route-bookingId="@bookingDetails.BookingId">*@
+                                    <input type="submit" name="checkout" id="@bookingDetails.BookingId" value="@string.Concat("Checkout"," ",bookingDetails.Price,"$")" style="padding: 0;background-color:forestgreen" class="btn btn-primary btn-block" />
+                                    @*</form>*@
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="col-md-3 btnCheck">
+                                    <input type="button" disabled value="Paid" class="btn btn-danger btn-block" />
+                                </div>
+                            }
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+
+    var checkoutButton = document.getElementsByName("checkout");
+
+    for (let i = 0; i < checkoutButton.length; i++) {
+        checkoutButton[i].addEventListener("click", function () {
+            charge(checkoutButton[i].id)
+        });
+    }
+
+    function charge(bookingId) {
+        var stripe = Stripe("@stripe.Value.Publishablekey");
+        fetch("/Payment/Charge?bookingId=" + bookingId, {
+            method: "POST",
+        })
+            .then(function (response) {
+                return response.json();
+            })
+            .then(function (session) {
+                return stripe.redirectToCheckout({ sessionId: session.id });
+            })
+            .then(function (result) {
+                // If redirectToCheckout fails due to a browser or network
+                // error, you should display the localized error message to your
+                // customer using error.message.
+                if (result.error) {
+                    alert(result.error.message);
+                }
+            })
+            .catch(function (error) {
+                console.error("Error:", error);
+            });
+    }
+</script>

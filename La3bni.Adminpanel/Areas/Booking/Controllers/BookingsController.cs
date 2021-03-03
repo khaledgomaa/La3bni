@@ -1,8 +1,10 @@
 ﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Models;
 using Repository;
 using Repository.IBookingRepository;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace La3bni.Adminpanel.Areas.Booking.Controllers
@@ -11,16 +13,24 @@ namespace La3bni.Adminpanel.Areas.Booking.Controllers
     public class BookingsController : Controller
     {
         private readonly IUnitOfWork unitOfWork;
+        private readonly UserManager<ApplicationUser> userManager;
 
-        public BookingsController(IUnitOfWork _unitOfWork)
+        public BookingsController(IUnitOfWork _unitOfWork, UserManager<ApplicationUser> _userManager)
         {
             unitOfWork = _unitOfWork;
+            userManager = _userManager;
         }
 
         // GET: BookingsController
         [Route("index")]
         public ActionResult Index()
         {
+            var currentUser = userManager.GetUserAsync(User).Result;
+            if (userManager.GetRolesAsync(currentUser).Result?.ElementAt(0) == "Owner")
+            {
+                return View(unitOfWork.BookingRepo.GetAllWithInclude().Where(b => b.Playground.ApplicationUserId == currentUser.Id));
+            }
+
             return View(unitOfWork.BookingRepo.GetAllWithInclude());
         }
 

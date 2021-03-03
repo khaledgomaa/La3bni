@@ -1,0 +1,296 @@
+﻿@inject SignInManager<ApplicationUser> signInManager;
+@inject UserManager<ApplicationUser> userManager;
+@inject Repository.IUnitOfWork unitOfWork;
+@inject RoleManager<IdentityRole> roleManager;
+
+@{
+
+    var res = unitOfWork.NotificationRepo.GetAll().ToList();
+    var notifyy = res;
+    var Unseen_count = notifyy.Count;
+    int clicked = 0;
+
+}
+<!DOCTYPE HTML>
+<html>
+<head>
+    <title>La3bni Koora</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+
+    <link href="https://fonts.googleapis.com/css?family=Merienda+One" rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+
+    <link href="~/assets/css/jquery-ui.min.css" rel="stylesheet" />
+    <link href="~/lib/twitter-bootstrap/bootstrap.min.css" rel="stylesheet" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <link rel="stylesheet" href="~/assets/css/main.css" />
+    <style>
+        #navPanel {
+            display: none;
+        }
+    </style>
+
+    @RenderSection("Styles", false)
+</head>
+
+<body style="overflow-x:hidden">
+    <div class="main-page">
+        <!-- Header -->
+
+        <nav class="navbar navbar-default">
+            <div class="navbar-header">
+                <a class="navbar-brand" href="/"><i class="fa fa-cube"></i>La3bni<b>Koora</b></a>
+                <button type="button" data-target="#navbarCollapse" data-toggle="collapse" class="navbar-toggle">
+                    <span class="navbar-toggler-icon"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+            </div>
+            <!-- Collection of nav links, forms, and other content for toggling -->
+            <div id="navbarCollapse" class="collapse navbar-collapse">
+                <ul class="nav navbar-nav">
+                    <li class="active"><a href="/" id="MyNav">Home</a></li>
+
+                    @*<li class="dropdown">
+                            <a data-toggle="dropdown" class="dropdown-toggle" href="#">Services <b class="caret"></b></a>
+                            <ul class="dropdown-menu">
+                                <li><a href="#">Web Design</a></li>
+                                <li><a href="#">Web Development</a></li>
+                                <li><a href="#">Graphic Design</a></li>
+                                <li><a href="#">Digital Marketing</a></li>
+                            </ul>
+                        </li>*@
+                    <li><a asp-controller="Stadiums" asp-action="Index">Stadiums</a></li>
+
+                    <li><a href="#footer">Contact</a></li>
+                    @if (!signInManager.IsSignedIn(User))
+                    {
+                        <li><a asp-controller="Account" asp-action="Register">Register</a></li>
+                    }
+                </ul>
+                <form class="navbar-form form-inline">
+                    <div class="input-group search-box">
+                        <input onfocus="this.select();" id="search" style="color:black; font-weight:bolder" class="form-control" placeholder="Search by Name">
+                    </div>
+                </form>
+                <ul class="nav navbar-nav navbar-right">
+
+                    @if (signInManager.IsSignedIn(User))
+                    {
+
+                        var currentUser = userManager.GetUserAsync(User).Result;
+
+                        /*****************Notifaction****************/
+                        <li class="dropdown">
+                            @{
+                                res = unitOfWork.NotificationRepo.GetAll().ToList();
+                                notifyy = res.FindAll(n => n.ApplicationUserId == currentUser.Id).OrderByDescending(a => a.Seen == 0).ToList();
+                                Unseen_count = notifyy.FindAll(notif => notif.Seen == 0).Count();
+
+                            }
+                            <a asp-action="SeenNotifactions" asp-controller="Account" asp-route-id="@currentUser.Id" data-toggle="dropdown" class="dropdown-toggle user-action">
+                                <span class="badge" id="numOfUnseen">@Unseen_count</span><i class="fa fa-bell-o"></i>
+                            </a>
+
+                            <ul class="dropdown-menu" style="
+                                background: #E3EBEF;
+
+                                    max-height: 250px;
+                                    overflow-wrap: break-word;
+                                    word-wrap: break-word;
+                                    white-space: normal !important;
+                                    overflow: scroll;
+
+                                    ">
+                                @{
+                                    var color = "#9FB6C3";
+                                    foreach (Notification item in notifyy)
+                                    {
+                                        if (item.Seen == 0) color = "#9FB6C3";
+                                        if (item.Seen == 1) color = "#E3EBEF";
+
+                                        <div name="notification" id=" @item.NotificationId" style="background:@color; -ms-align-content:center ">
+
+                                            <li>
+                                                &nbsp; &nbsp; @item.Title
+                                            </li>
+                                            <li>
+                                                @item.Body
+                                            </li>
+                                        </div>
+                                        <li class="divider"></li>
+
+                                    }
+
+                                }
+                                <li class="divider"></li>
+                                <li><a asp-controller="Account" asp-action="Notification"><i class="fa fa-bell-o"></i> See All Notifications</a></li>
+                            </ul>
+                        </li>
+
+                        <li class="dropdown">
+                            <a href="#" data-toggle="dropdown" class="dropdown-toggle user-action">
+
+                                <i class="fa fa-user" aria-hidden="true"></i>&nbsp; @currentUser.UserName &nbsp;<b class="caret"></b>
+                            </a>
+
+                            <ul class="dropdown-menu">
+
+                                <li><a asp-controller="Account" asp-action="myProfile"><i class="fa fa-user-o"></i> Profile</a></li>
+                                <li><a asp-controller="Account" asp-action="EditProfile"><i class="fa fa-user-o"></i> Edit Profile</a></li>
+                                @{
+                                    if (userManager.IsInRoleAsync(currentUser, "Owner").Result)
+                                    {
+                                        <li><a asp-controller="Account" asp-action="PlayGroundDiaplay" asp-route-id="@currentUser.Id"><i class="fa fa-user-o"></i>Display Playgrounds</a></li>
+
+                                    }
+
+                                }
+                                <li class="divider"></li>
+
+                                <li><a asp-controller="MyBookings" asp-action="Index"><i class="fa fa-user-o"></i> Bookings</a></li>
+                                <li><a asp-controller="MyBookings" asp-action="Teams"><i class="fa fa-user-o"></i> Teams</a></li>
+                                <li class="divider"></li>
+
+                                <li><a asp-controller="Account" asp-action="logout"><i class="material-icons">&#xE8AC;</i> Logout</a></li>
+                            </ul>
+                        </li>
+
+                    }
+                    else
+                    {
+                        <li><a asp-controller="Account" asp-action="login">Log In</a></li>
+                    }
+                </ul>
+            </div>
+        </nav>
+
+        @RenderBody()
+
+        <footer id="footer">
+            <div class="container">
+                <section class="links">
+                    <div class="row">
+                        <section class="3u 6u(medium) 12u$(small)">
+                            <h3>About Us</h3>
+                            <ul class="unstyled">
+                                <li>We are proud to bring you the</li>
+                                <li>most professional stadium reservations website</li>
+                                <li>made by five developers</li>
+                                <li>who are students in ITI,</li>
+                                <li>our website is easy to use.</li>
+                            </ul>
+                        </section>
+                        <section class="3u 6u$(medium) 12u$(small)">
+                            <h3>Quick Menu</h3>
+                            <ul class="unstyled">
+                                <li><a asp-action="Index" asp-controller="Home">Home</a></li>
+                                <li><a asp-controller="Stadiums" asp-action="Index">All Stadiums</a></li>
+                                <li><a asp-controller="Account" asp-action="myProfile">Profile</a></li>
+                                <li><a asp-controller="MyBookings" asp-action="Index">Bookings</a></li>
+                                <li><a asp-controller="MyBookings" asp-action="Teams">Teams</a></li>
+                            </ul>
+                        </section>
+
+                        <section class="3u 6u(medium) 12u$(small)">
+                            <h3>Developers</h3>
+                            <ul class="unstyled">
+                                <li><a href="#">Hagar Gad</a></li>
+                                <li><a href="#">Islam Ramadan</a></li>
+                                <li><a href="#">Khaled Gomaa</a></li>
+                                <li><a href="#">Mohamed Shawky</a></li>
+                                <li><a href="#">Nada AlShazly</a></li>
+                            </ul>
+                        </section>
+                        <section class="3u$ 6u$(medium) 12u$(small)">
+                            <h3>Contact Us</h3>
+                            <form method="post" asp-action="GetInTouch" asp-controller="Home">
+                                <div class="text-danger"></div>
+                                <div class="field half" style="padding: 0;">
+                                    <input type="text" required oninput="setCustomValidity('')" oninvalid="setCustomValidity('Please enter your Name')" name="Name" placeholder="Name" />
+                                </div>
+                                <div class="field half">
+                                    <input type="email" required oninput="setCustomValidity('')" oninvalid="setCustomValidity('Please enter your Email Address')" name="Email" placeholder="Email" />
+                                </div>
+                                <div class="field">
+                                    <textarea required oninput="setCustomValidity('')" oninvalid="setCustomValidity('Please enter Your FeedBack')" name="Message" cols="4" rows="2" placeholder="Message"></textarea>
+                                    <span class="text-danger"></span>
+                                </div>
+                                <ul class="actions">
+                                    <li><input type="submit" value="Send Message" class="alt" /></li>
+                                </ul>
+                            </form>
+                        </section>
+                    </div>
+                </section>
+                <div class="row">
+                    <div class="8u 12u$(medium)">
+                        <ul class="copyright">
+                            <li>&copy; Untitled. All rights reserved.</li>
+                        </ul>
+                    </div>
+                    <div class="4u$ 12u$(medium)">
+                        <ul class="icons">
+                            <li>
+                                <a class="icon rounded fa-facebook"><span class="label">Facebook</span></a>
+                            </li>
+                            <li>
+                                <a class="icon rounded fa-twitter"><span class="label">Twitter</span></a>
+                            </li>
+                            <li>
+                                <a class="icon rounded fa-google-plus"><span class="label">Google+</span></a>
+                            </li>
+                            <li>
+                                <a class="icon rounded fa-linkedin"><span class="label">LinkedIn</span></a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </footer>
+
+        <!-- Scripts -->
+        <script src="~/assets/js/jquery.min.js"></script>
+        <script src="~/assets/js/skel.min.js"></script>
+        <script src="~/assets/js/util.js"></script>
+        <script src="~/lib/jquery-validate/jquery.validate.js"></script>
+        <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.js"></script>
+        <script src="~/assets/js/jquery-ui.min.js"></script>
+        <script src="~/assets/js/main.js"></script>
+        <script src="~/assets/js/searchbox.js"></script>
+    </div>
+    <script>
+        var notificationElements = document.getElementsByName("notification");
+        for (let i = 0; i < notificationElements.length; i++) {
+            notificationElements[i].addEventListener("click", function () {
+                updateNotificationStatus(notificationElements[i].id);
+            });
+        }
+
+        function updateNotificationStatus(notificationId) {
+            $.ajax({
+                type: "get",
+                url: "https://localhost:44379/Account/UpdateNOtificationStatus",
+                data:
+                {
+                    notificationId: notificationId
+                },
+                success: function (response) {
+                    console.log("Updated Notification");
+                    document.getElementById(notificationId).style.background = "#E3EBEF";
+                    var curNum = parseInt(document.getElementById("numOfUnseen").innerText) - 1;
+                    document.getElementById("numOfUnseen").innerText = curNum;
+                },
+                error: function (req, status, error) {
+                    //console.log(msg);
+                }
+            });
+        }
+    </script>
+</body>
+</html>

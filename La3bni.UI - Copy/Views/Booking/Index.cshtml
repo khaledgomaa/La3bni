@@ -1,0 +1,124 @@
+﻿@model Playground
+@using Models.ViewModels;
+@inject IConfiguration config;
+@inject SignInManager<ApplicationUser> signInManager;
+
+@{
+
+    var selectedDate = DateTime.Now.Date;
+}
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<link rel="stylesheet" href="~/Booking/css/dialog.css" />
+<link rel="stylesheet" href="~/Booking/css/style.css" />
+<div class="fullWidth">
+    <img class="center-fit" style="width: 100%; height: 50vh;" src="@string.Concat(@config.GetSection("AdminPanelUrl").Value,@Model.ImagePath)" />
+</div>
+
+<div class="row">
+    <div class="col-md-5">
+        <h1>Overview</h1>
+        <p class="d-block" style="padding-left:1%">
+            @Model.OverView
+        </p>
+
+        @if (signInManager.IsSignedIn(User))
+        {
+            <div>
+                <i id="1" onclick="updateRate(this)" class="fa fa-star customStar"></i>
+                <i id="2" onclick="updateRate(this)" class="fa fa-star customStar"></i>
+                <i id="3" onclick="updateRate(this)" class="fa fa-star customStar"></i>
+                <i id="4" onclick="updateRate(this)" class="fa fa-star customStar"></i>
+                <i id="5" onclick="updateRate(this)" class="fa fa-star customStar"></i>
+            </div>
+        }
+    </div>
+
+    <div class="col-md-2" id="bookDetails">
+        <input type="hidden" id="playground" asp-for="PlaygroundId" />
+        <div class="form-group">
+            <label for="date" class="control-label"></label>
+            <input asp-for="@selectedDate" id="selDate" type="date" onchange="checkBooking()" class="form-control" />
+        </div>
+        <div class="form-group">
+            <label for="period" class="control-label">Select period</label>
+            <select name="period" class="form-control" id="periods" onchange="onChangeSelectedPeriod(this.value)">
+                @*@for (int i = 0; i < periods.Count(); i++)
+                    {
+                        <option name="options" value="@periods[i].Id">@periods[i].Time</option>
+                    }*@
+            </select>
+            <label id="message"></label>
+        </div>
+        <div class="form-group">
+
+            <input type="submit" id="bookBtn" value="Book" onclick="Confirm.render()" class="btn btn-primary" />
+        </div>
+    </div>
+
+    <div class="col-md-5">
+
+        <table style="width:50%;position:relative;left:22%">
+            <tbody>
+                <tr>
+                    <th>Name</th>
+                    <td>@Model.Name</td>
+                </tr>
+                <tr>
+                    <th>City</th>
+                    <td>@Model.City</td>
+                </tr>
+                <tr>
+                    <th>Area</th>
+                    <td>@Model.StadiumArea</td>
+                </tr>
+                <tr>
+                    <th>Number Of Players</th>
+                    <td>@Model.NumOfPlayers</td>
+                </tr>
+
+                <tr>
+                    <th>AM Price</th>
+                    <td>@Model.AmPrice</td>
+                </tr>
+
+                <tr>
+                    <th>PM Price</th>
+                    <td>@Model.PmPrice</td>
+                </tr>
+
+                <tr>
+                    <th>Rate</th>
+                    <td class="Stars" style="--rating: @Model.Rate;" aria-label="Rating of this product is @Model.Rate out of 5."></td>
+                </tr>
+
+                <tr>
+                    <th>Status</th>
+                    <td>@Model.PlaygroundStatus</td>
+                </tr>
+
+                @if (Model.Services != 0)
+                {
+                    <tr>
+                        <th>Services</th>
+                        <td>@Model.Services</td>
+                    </tr>
+
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div id="dialogoverlay"></div>
+<div id="dialogbox">
+    <div>
+        <div id="dialogboxhead"></div>
+        <div id="dialogboxbody"></div>
+        <div id="dialogboxfoot"></div>
+    </div>
+</div>
+
+@*<script src="~/lib/jquery/dist/jquery.min.js"></script>*@
+<script src="~/Booking/js/BookingJs.js"></script>
+@*<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>*@

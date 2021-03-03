@@ -92,19 +92,6 @@ img {
     padding-top: 8px;
 }
 
-.product {
-    margin-bottom: 30px;
-}
-
-.product-inner {
-    box-shadow: 0 0 10px rgba(0,0,0,.2);
-    padding: 10px;
-}
-
-.product img {
-    margin-bottom: 10px;
-}
-
 .searchclass {
     opacity: 0;
 }
@@ -121,3 +108,35 @@ img {
 .stadiumsTitle {
     margin-left: 30px !important;
 }
+
+/*-----------------Rating --------------*/
+
+.star-ratings {
+    unicode-bidi: bidi-override;
+    color: #ccc;
+    font-size: 30px;
+    position: relative;
+    margin: 0;
+    padding: 0;
+}
+
+    .star-ratings .fill-ratings {
+        color: #e7711b;
+        padding: 0;
+        position: absolute;
+        z-index: 1;
+        display: block;
+        top: 0;
+        left: 0;
+        overflow: hidden;
+    }
+
+    .star-ratings .fill-ratings span {
+            display: inline-block;
+        }
+
+    .star-ratings .empty-ratings {
+        padding: 0;
+        display: block;
+        z-index: 0;
+    }

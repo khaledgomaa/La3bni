@@ -23,7 +23,7 @@ namespace La3bni.UI.Controllers
 
         public async Task<IActionResult> Index(string PlaygroundName, int? price, Models.City? city)
         {
-           // ApplicationUser user = await userManager.GetUserAsync(User);
+           ApplicationUser user = await userManager.GetUserAsync(User);
             var stadiums = unitOfWork.PlayGroundRepo.GetAll().ToList();
 
             ViewData["PName"] = PlaygroundName;
@@ -42,7 +42,7 @@ namespace La3bni.UI.Controllers
             {
                 stadiums = stadiums.Where(s => s.City == city).ToList();
             }
-            
+            stadiums = stadiums.OrderByDescending(s => s.City == (user?.City??0)).ToList();
             return View(stadiums);
         }
     }

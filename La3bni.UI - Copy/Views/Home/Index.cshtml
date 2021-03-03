@@ -1,0 +1,171 @@
+﻿@inject IConfiguration config
+@{
+    @using Newtonsoft.Json.Linq;
+
+    JArray articles = (JArray)ViewBag.articles;
+    int articleIndex = 0;
+
+    List<Playground> Playgrounds = ViewBag.Playgrounds;
+
+    var NumberOfOfferedPlaygroundsToShow = Playgrounds.Where(d => d.IsOffered == 1).Count();
+    if (NumberOfOfferedPlaygroundsToShow < 4)
+    {
+        if (NumberOfOfferedPlaygroundsToShow % 2 != 0)
+            NumberOfOfferedPlaygroundsToShow += 1;
+
+    }
+    else
+        NumberOfOfferedPlaygroundsToShow = 4;
+
+    List<Playground> Offers = Playgrounds.Where(d => d.IsOffered == 1).ToList();
+}
+
+<link rel="stylesheet" href="~/plays.css" />
+
+<link href="~/assets/css/MyStyle.css" rel="stylesheet" />
+
+<link href="~/lib/fontawesome-iconpicker/css/fontawesome-iconpicker.css" rel="stylesheet" />
+
+<section class="banner full">
+
+    @foreach (var playground in Playgrounds)
+    {
+        <article>
+            <img src="@config["AdminPanelUrl"]/@playground.ImagePath" alt="" />
+            <div class="inner1">
+                <header>
+                    <p>Our Rate @playground.Rate /5  - Area @playground.StadiumArea Created on  @playground.CreatedOn </p>
+                    <h2>@playground.Name</h2>
+                </header>
+            </div>
+        </article>
+    }
+</section>
+
+<header>
+    <h2 style="padding-left: 12%;padding-top:2%;">Our Offers</h2>
+</header>
+
+<div class="mainConatainerPlayGround" style="width:77%; padding-top:5%; ">
+    @foreach (var item in Offers)
+    {
+        <div class="col-4 stadiumsTitle-container">
+            <div class="item">
+                <div class="card item-card card-block">
+                    <a asp-action="Index" asp-controller="Booking" asp-route-id="@item.PlaygroundId">
+                        <img src="@(config.GetSection("AdminPanelURL").Value+item.ImagePath)" alt="Stadium Image">
+                    </a>
+                    <h5 class="item-card-title mt-3 mb-3"></h5>
+                    <p class="card-text">
+                        This is a @Html.DisplayFor(modelItem => item.Name) stadium. it provides some services like @Html.DisplayFor(modelItem => item.Services)
+                        it is located in @Html.DisplayFor(modelItem => item.City)
+                    </p>
+                    <h3 class="item-card-title mt-3 mb-3"><a asp-action="Index" asp-controller="Booking" asp-route-id="@item.PlaygroundId">Book</a></h3>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+<!-- Playground Offers -->
+@*<section id="two">
+
+        <header class="section-two-header">
+            <h3>Playground Offers</h3>
+        </header>
+        @for (int i = 0; i < Offers?.Count; i += 2)
+        {
+            <div class="inner">
+                <article>
+                    <div class="content">
+                        <header>
+                            <h3>@Offers[i].Name</h3>
+                        </header>
+                        <div class="image fit playground-image">
+                            <a asp-action="Index" asp-controller="Booking" asp-route-id="@Offers[i].PlaygroundId">
+                                <img class="plyground-card-image" src="@config["AdminPanelUrl"]/@Offers[i].ImagePath" alt="@Offers[i].Name Image" />
+                            </a>
+                            <ul class="list-group-item-info">
+                                <li>Rate @Offers[i].Rate</li>
+                                <li>Services @((Services)Offers[i].Services)</li>
+                                <li>StadiumArea @Offers[i].StadiumArea</li>
+                                <li>NumOfPlayers @Offers[i].NumOfPlayers</li>
+                                <li>PmPrice @Offers[i].PmPrice</li>
+                                <li>AmPrice @Offers[i].AmPrice</li>
+                            </ul>
+                        </div>
+                    </div>
+                </article>
+                <div class="star-outer">
+                    <div class="star-inner"></div>
+                </div>
+                @{
+                    if (Offers.Count != i + 1) //if it's not the last image --just to be shure that i handled out of bound execption
+                    {
+                        <article class="alt">
+                            <div class="content">
+                                <header>
+                                    <h3>@Offers[i + 1].Name</h3>
+                                </header>
+                                <div class="image fit right-article">
+                                    <a asp-action="Index" asp-controller="Booking" asp-route-id="@Offers[i].PlaygroundId">
+                                        <img class="plyground-card-image" src="@config["AdminPanelUrl"]/@Offers[i+1].ImagePath" alt="@Offers[i+1].Name Image" />
+                                    </a>
+                                    <ul class="list-group-item-info">
+                                        <li>Rate @Offers[i + 1].Rate</li>
+                                        <li>Services @((Services)Offers[i+1].Services)</li>
+                                        <li>StadiumArea @Offers[i + 1].StadiumArea</li>
+                                        <li>NumOfPlayers @Offers[i + 1].NumOfPlayers</li>
+                                        <li>PmPrice @Offers[i + 1].PmPrice</li>
+                                        <li>AmPrice @Offers[i + 1].AmPrice</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </article>
+                    }
+                }
+            </div>
+        }
+    </section>*@
+
+<!-- Football News -->
+<section id="one">
+    <div class="inner">
+        <header>
+            <h2>Football News</h2>
+        </header>
+        <div class="container news">
+            <div class="row">
+                @if (articles != null)
+                {
+                    @foreach (JObject article in articles.Children().Take(4))
+                    {
+                        string imageSrc = "/images/News/" + ++articleIndex + ".jpg";
+
+                        <div class="col- button-container">
+                            <div>
+                                <p class="news-element1 text-truncate text-center bg-primary text-primary">@article.GetValue("summary").ToString()</p>
+                            </div>
+                            <div>
+                                <a href="@article.GetValue("link").ToString()" target="_blank">
+                                    <img src="@imageSrc" class="news-image" alt=" News Image" />
+                                </a>
+                            </div>
+                            <div>
+                                <p class="news-element2">@article.GetValue("rights").ToString()</p>
+                            </div>
+                            <div>
+                                <p class="news-element3">@article.GetValue("published_date").ToString()</p>
+                            </div>
+
+                            <div>
+                                <ul class="actions link-button">
+                                    <li><a href="@article.GetValue("link").ToString()" target="_blank" class="button alt">Learn More</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    }
+                }
+            </div>
+        </div>
+    </div>
+</section>

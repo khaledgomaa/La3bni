@@ -3,6 +3,7 @@
 @{
     ViewData["Title"] = "Index";
 }
+<link href="~/assets/css/ratings.css" rel="stylesheet" />
 
 <h1>Index</h1>
 
@@ -65,7 +66,20 @@
                     @Html.DisplayFor(modelItem => item.Services)
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.Rate)
+                    @*@Html.DisplayFor(modelItem => item.Rate)*@
+                    @{
+                        var size =$"{item.Rate / 5 * 100}%";
+                           
+                    <div class="star-ratings">
+
+                        <div class="fill-ratings" style="width:@size">
+                            <span>★★★★★</span>
+                        </div>
+                        <div class="empty-ratings">
+                            <span>★★★★★</span>
+                        </div>
+                    </div>
+                    }
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.PlaygroundStatus)
@@ -96,3 +110,12 @@
         }
     </tbody>
 </table>
+
+<script src="~/assets/js/core/jquery.min.js"></script>
+<script>
+    $(document).ready(function () {
+        var star_rating_width = $('.fill-ratings span').width();
+        $('.star-ratings').width(star_rating_width);
+    });
+   
+</script>
