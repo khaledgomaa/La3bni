@@ -20,11 +20,11 @@
     List<Playground> Offers = Playgrounds.Where(d => d.IsOffered == 1).ToList();
 }
 
-<link rel="stylesheet" href="~/plays.css" />
-
 <link href="~/assets/css/MyStyle.css" rel="stylesheet" />
 
 <link href="~/lib/fontawesome-iconpicker/css/fontawesome-iconpicker.css" rel="stylesheet" />
+
+<link rel="stylesheet" href="~/plays.css" />
 
 <section class="banner full">
 
@@ -34,7 +34,7 @@
             <img src="@config["AdminPanelUrl"]/@playground.ImagePath" alt="" />
             <div class="inner1">
                 <header>
-                    <p>Our Rate @playground.Rate /5  - Area @playground.StadiumArea Created on  @playground.CreatedOn </p>
+                    <p>Our Rate @playground.Rate /5  - Area @playground.StadiumArea Created on  @playground.CreatedOn.ToString("d") </p>
                     <h2>@playground.Name</h2>
                 </header>
             </div>
@@ -60,6 +60,19 @@
                         This is a @Html.DisplayFor(modelItem => item.Name) stadium. it provides some services like @Html.DisplayFor(modelItem => item.Services)
                         it is located in @Html.DisplayFor(modelItem => item.City)
                     </p>
+                    @{
+                        var size = $"{item.Rate / 5 * 100}%";
+
+                        <div class="star-ratings">
+
+                            <div class="fill-ratings" style="width:@size">
+                                <span>★★★★★</span>
+                            </div>
+                            <div class="empty-ratings">
+                                <span>★★★★★</span>
+                            </div>
+                        </div>
+                    }
                     <h3 class="item-card-title mt-3 mb-3"><a asp-action="Index" asp-controller="Booking" asp-route-id="@item.PlaygroundId">Book</a></h3>
                 </div>
             </div>
@@ -153,17 +166,19 @@
             e.preventDefault();
             $('.modalClosing').modal("hide");
 
-            var email = $("input[name='email']").val() 
+            var email = $("input[name='email']").val()
             $.ajax({
                 url: '/Home/AddToSubscribers/',
                 type: 'POST',
-                data: { email:email },
-                
+                data: { email: email },
+
                 dataType: 'json'
             });
             $("input[name='email']").val("");
         })
 
     });
-</script>
 
+    var star_rating_width = $('.fill-ratings span').width();
+    $('.star-ratings').width(star_rating_width);
+</script>
