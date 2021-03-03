@@ -34,8 +34,12 @@ namespace La3bni.Adminpanel.Controllers
             //for testing right now
             ApplicationUser user = await userManager.GetUserAsync(User);
             string userId = user?.Id ?? "";
-            var stadiums = unitOfWork.PlayGroundRepo.GetAll().Where(p => p.ApplicationUserId == userId).ToList();
-            return View(stadiums);
+            if (userManager.GetRolesAsync(user).Result?.ElementAt(0) == "Owner")
+            {
+                return View(unitOfWork.PlayGroundRepo.GetAll().Where(p => p.ApplicationUserId == userId));
+            }
+
+            return View(unitOfWork.PlayGroundRepo.GetAll());
         }
 
         [Route("Details")]
