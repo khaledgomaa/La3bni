@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using System.Net.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Authorization;
+using Newtonsoft.Json;
 
 namespace La3bni.UI.Controllers
 {
@@ -53,6 +54,20 @@ namespace La3bni.UI.Controllers
             return ret;
         }
 
+        [HttpPost]
+        public void AddToSubscribers(string email)
+        {
+            if(!unitOfwork.SubscriberRepo.GetAll().Any(p=>p.Email==email))
+            {
+                unitOfwork.SubscriberRepo.Add(new Subscriber() { Email =email  });
+                if(unitOfwork.Save() >0)
+                {
+                    emailRepository.sendEmail("La3bniKoora", "Welcome on board, you'r now a subscriber", new List<string>() { email });
+                }
+                
+            }
+
+        }
         public IActionResult GetInTouch(FeedBack feedBack)
         {
             unitOfwork.FeedBackRepo.Add(feedBack);
@@ -65,64 +80,6 @@ namespace La3bni.UI.Controllers
                  feedBack.Message + "\n\nFrom : " + feedBack.Name + "\n" + feedBack.Email,
                  new List<string>() { "mohmedshawky2019@gmail.com" });
             return RedirectToAction("Index");
-        }
-
-        public IActionResult Charge()
-        {
-            return View();
-        }
-
-        //[HttpPost]
-        //public IActionResult Charge(string notUsedInput)
-        //{
-        //    //PaymentMehtod.Charge(stripeEmail, stripeToken);
-        //    var domain = configuration["Domain"];
-        //    var options = new SessionCreateOptions
-        //    {
-        //        PaymentMethodTypes = new List<string>
-        //        {
-        //          "card",
-        //        },
-        //        LineItems = new List<SessionLineItemOptions>
-        //        {
-        //          new SessionLineItemOptions
-        //          {
-        //            PriceData = new SessionLineItemPriceDataOptions
-        //            {
-        //              UnitAmount = 100,
-        //              Currency = "usd",
-        //              ProductData = new SessionLineItemPriceDataProductDataOptions
-        //              {
-        //                Name = "Stubborn Attachments",
-        //              },
-        //            },
-        //            Quantity = 1,
-        //          },
-        //        },
-        //        Mode = "payment",
-        //        SuccessUrl = domain + "/OrderSuccess?session_id={CHECKOUT_SESSION_ID}",
-        //        CancelUrl =  domain + "/cancel.html",
-        //    };
-        //    var service = new SessionService();
-        //    Session session = service.Create(options);
-        //    return Json(new { id = session.Id });
-
-        //    //return View();
-        //}
-
-        //public ActionResult OrderSuccess([FromQuery] string session_id)
-        //{
-        //    var sessionService = new SessionService();
-        //    Session session = sessionService.Get(session_id);
-
-        //    var customerService = new CustomerService();
-        //    Customer customer = customerService.Get(session.CustomerId);
-
-        //    return Content($"<html><body><h1>Thanks for your order, {customer.Name}!</h1></body></html>");
-        //}
-        public IActionResult Cancel()
-        {
-            return View();
         }
 
         public async Task<IActionResult> Index()
