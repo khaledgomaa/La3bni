@@ -4,6 +4,7 @@
     ViewData["Title"] = "Details";
     var times = (List<PlaygroundTimes>)ViewData["PlaygroundTimes"];
 }
+<link href="~/assets/css/ratings.css" rel="stylesheet" />
 
 <h1>Details</h1>
 
@@ -52,7 +53,19 @@
             @Html.DisplayNameFor(model => model.Rate)
         </dt>
         <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Rate)
+            @{
+            var size =$"{Model.Rate / 5 * 100}%";
+
+            <div class="star-ratings">
+
+                <div class="fill-ratings" style="width:@size">
+                    <span>★★★★★</span>
+                </div>
+                <div class="empty-ratings">
+                    <span>★★★★★</span>
+                </div>
+            </div>
+            }
         </dd>
         <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.PlaygroundStatus)
@@ -86,7 +99,7 @@
             </tr>
             @foreach (var playgroundTimes in times)
             {
-               
+
                 var from = (@playgroundTimes.From).ToString("HH:mm");
                 var to = (@playgroundTimes.To).ToString("HH:mm");
                 <tr>
@@ -102,3 +115,12 @@
     <a asp-action="Edit" asp-route-id="@Model.PlaygroundId">Edit</a> |
     <a asp-action="Index">Back to home</a>
 </div>
+
+<script src="~/assets/js/core/jquery.min.js"></script>
+<script>
+    $(document).ready(function () {
+        var star_rating_width = $('.fill-ratings span').width();
+        $('.star-ratings').width(star_rating_width);
+    });
+
+</script>
