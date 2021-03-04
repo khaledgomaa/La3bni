@@ -11,110 +11,109 @@
 
 <h4>Playground</h4>
 <hr />
-<div class="container pb-2">
-    <div class="row">
-        <div class="col-md-4">
-            <form asp-action="Create" enctype="multipart/form-data" class="container">
-                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Create" enctype="multipart/form-data" class="container">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
-                <div class="form-group">
-                    <label asp-for="Name" class="control-label"></label>
-                    <input asp-for="Name" id="Name" class="form-control" value="" />
-                    <span asp-validation-for="Name" class="text-danger"></span>
-                </div>
-                <div class="form-group">
-                    <label asp-for="City" class="control-label"></label>
-                    <select asp-for="City" id="City" asp-items="Html.GetEnumSelectList<Models.City>()" class="form-control"></select>
-                    <span asp-validation-for="City" class="text-danger"></span>
-                </div>
-                <div class="form-group">
-                    <label asp-for="OverView" class="control-label"></label>
-                    <input asp-for="OverView" id="OverView" class="form-control" value="" />
-                    <span asp-validation-for="OverView" class="text-danger"></span>
-                </div>
-                <div class="form-group">
-                    <label asp-for="StadiumArea" class="control-label"></label>
-                    <input asp-for="StadiumArea" id="StadiumArea" class="form-control" />
-                    <span asp-validation-for="StadiumArea" class="text-danger"></span>
-                </div>
+            <div class="form-group">
+                <label asp-for="Name" class="control-label"></label>
+                <input asp-for="Name" id="Name" class="form-control" value="" />
+                <span asp-validation-for="Name" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="City" class="control-label"></label>
+                <select asp-for="City" id="City" asp-items="Html.GetEnumSelectList<Models.City>()" class="form-control"></select>
+                <span asp-validation-for="City" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="OverView" class="control-label"></label>
+                <input asp-for="OverView" id="OverView" class="form-control" value="" />
+                <span asp-validation-for="OverView" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="StadiumArea" class="control-label"></label>
+                <input asp-for="StadiumArea" id="StadiumArea" class="form-control" />
+                <span asp-validation-for="StadiumArea" class="text-danger"></span>
+            </div>
 
-                <div class="form-group">
-                    <label asp-for="AmPrice" class="control-label"></label>
-                    <input asp-for="AmPrice" id="AmPrice" class="form-control" />
-                    <span asp-validation-for="AmPrice" class="text-danger"></span>
-                </div>
-                <div class="form-group">
-                    <label asp-for="PmPrice" class="control-label"></label>
-                    <input asp-for="PmPrice" id="PmPrice" class="form-control" />
-                    <span asp-validation-for="PmPrice" class="text-danger"></span>
-                </div>
-                <div class="form-group">
-                    <label asp-for="Services" class="control-label"></label>
-                    @foreach (var ser in Enum.GetValues(typeof(Models.Services)))
-                    {
-                        <input type="checkbox" name="Services" class="services" value="@ser" />@ser<br />
-                    }
-                    <span asp-validation-for="Services" class="text-danger"></span>
-                </div>
+            <div class="form-group">
+                <label asp-for="AmPrice" class="control-label"></label>
+                <input asp-for="AmPrice" id="AmPrice" class="form-control" />
+                <span asp-validation-for="AmPrice" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="PmPrice" class="control-label"></label>
+                <input asp-for="PmPrice" id="PmPrice" class="form-control" />
+                <span asp-validation-for="PmPrice" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Services" class="control-label"></label>
+                @foreach (var ser in Enum.GetValues(typeof(Models.Services)))
+                {
+                    <input type="checkbox" name="Services" class="services" value="@ser" />@ser<br />
+                }
+                <span asp-validation-for="Services" class="text-danger"></span>
+            </div>
 
-                <div class="form-group">
-                    <label asp-for="PlaygroundStatus" class="control-label"></label>
-                    <select asp-for="PlaygroundStatus" id="PlaygroundStatus" asp-items="Html.GetEnumSelectList<Models.Status>()" class="form-control"></select>
-                    <span asp-validation-for="PlaygroundStatus" class="text-danger"></span>
-                </div>
-                <div class="form-group">
-                    <label asp-for="IsOffered" class="control-label"></label>
-                    <input asp-for="IsOffered" id="IsOffered" class="form-control" />
-                    <span asp-validation-for="IsOffered" class="text-danger"></span>
-                </div>
-                <div class="form-group">
-                    <label asp-for="CreatedOn" class="control-label"></label>
-                    <input asp-for="CreatedOn" id="CreatedOn" class="form-control" />
-                    <span asp-validation-for="CreatedOn" class="text-danger"></span>
-                </div>
-                <div id="playgroundTimes">
-                    <table id="timesRecord" style="display:none">
-                        <tr>
-                            <th>From</th>
-                            <th>To</th>
-                        </tr>
-                    </table>
+            <div class="form-group">
+                <label asp-for="PlaygroundStatus" class="control-label"></label>
+                <select asp-for="PlaygroundStatus" id="PlaygroundStatus" asp-items="Html.GetEnumSelectList<Models.Status>()" class="form-control"></select>
+                <span asp-validation-for="PlaygroundStatus" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="IsOffered" class="control-label"></label>
+                <input asp-for="IsOffered" id="IsOffered" class="form-control" />
+                <span asp-validation-for="IsOffered" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="CreatedOn" class="control-label"></label>
+                <input asp-for="CreatedOn" id="CreatedOn" class="form-control" />
+                <span asp-validation-for="CreatedOn" class="text-danger"></span>
+            </div>
+            <div id="playgroundTimes">
+                <table id="timesRecord" style="display:none">
+                    <tr>
+                        <th>From</th>
+                        <th>To</th>
+                    </tr>
+                </table>
 
-                    <table id="table2">
-                        <tr id="header">
-                            <th>From</th>
-                            <th>To</th>
-                        </tr>
-                        <tr>
-                            <td>
-                                <input type="time" id="from" value="" />
-                            </td>
-                            <td>
-                                <input type="time" id="to" value="" />
-                            </td>
-                            <td>
-                                <input type="button" value="+" id="addDifferentPeriod" style="cursor:pointer" />
-                            </td>
-                        </tr>
-                    </table>
-                </div>
-                <div class="form-group">
-                    <label asp-for="ImageFile" class="control-label"></label>
-                    <input asp-for="ImageFile" id="ImageFile" accept="image/*" />
-                    <span asp-validation-for="ImageFile" class="text-danger"></span>
-                </div>
-                <div>
-                    <input type="button" value="Create" id="AddPlayground" class="btn btn-primary" />
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <div>
-
-        <a asp-action="Index">Back to List</a>
+                <table id="table2">
+                    <tr id="header">
+                        <th>From</th>
+                        <th>To</th>
+                    </tr>
+                    <tr>
+                        <td>
+                            <input type="time" id="from" value="" />
+                        </td>
+                        <td>
+                            <input type="time" id="to" value="" />
+                        </td>
+                        <td>
+                            <input type="button" value="+" id="addDifferentPeriod" style="cursor:pointer" />
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            <div class="form-group">
+                <label asp-for="ImageFile" class="control-label"></label>
+                <input asp-for="ImageFile" id="ImageFile" accept="image/*" />
+                <span asp-validation-for="ImageFile" class="text-danger"></span>
+            </div>
+            <div>
+                <input type="button" value="Create" id="AddPlayground" class="btn btn-primary" />
+            </div>
+        </form>
     </div>
 </div>
+
+<div>
+
+    <a asp-action="Index">Back to List</a>
+</div>
+
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
 }
