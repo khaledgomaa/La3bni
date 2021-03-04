@@ -10,8 +10,9 @@
 <p>
     <a asp-action="Create">Create New</a>
 </p>
-<table class="table">
-    <thead>
+<div class="container">
+<table class="table table-striped table-dark table-sm">
+    <thead class="thead-dark">
         <tr>
             <th>
                 @Html.DisplayNameFor(model => model.Name)
@@ -110,7 +111,7 @@
         }
     </tbody>
 </table>
-
+</div>
 <script src="~/assets/js/core/jquery.min.js"></script>
 <script>
     $(document).ready(function () {
