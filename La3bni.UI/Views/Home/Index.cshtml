@@ -41,111 +41,116 @@
         </article>
     }
 </section>
+<div class="container">
+    <header>
+        <h2 style="padding-left: 12%;padding-top:2%;">Our Offers</h2>
+    </header>
 
-<header>
-    <h2 style="padding-left: 12%;padding-top:2%;">Our Offers</h2>
-</header>
-
-<div class="mainConatainerPlayGround" style="width:77%; padding-top:5%; ">
-    @foreach (var item in Offers)
-    {
-        <div class="col-4 stadiumsTitle-container">
-            <div class="item">
-                <div class="card item-card card-block">
-                    <a asp-action="Index" asp-controller="Booking" asp-route-id="@item.PlaygroundId">
-                        <img src="@(config.GetSection("AdminPanelURL").Value+item.ImagePath)" alt="Stadium Image">
-                    </a>
-                    <h5 class="item-card-title mt-3 mb-3"></h5>
-                    <p class="card-text">
-                        This is a @Html.DisplayFor(modelItem => item.Name) stadium. it provides some services like @Html.DisplayFor(modelItem => item.Services)
-                        it is located in @Html.DisplayFor(modelItem => item.City)
-                    </p>
-                    <h3 class="item-card-title mt-3 mb-3"><a asp-action="Index" asp-controller="Booking" asp-route-id="@item.PlaygroundId">Book</a></h3>
+    <div class="row pt-5">
+        @foreach (var item in Offers)
+        {
+            <div class="col-12 col-md-3 p-md-2">
+                <div class="item">
+                    <div class="card item-card card-block">
+                        <a asp-action="Index" asp-controller="Booking" asp-route-id="@item.PlaygroundId">
+                            <img class="img-fluid w-75" src="@(config.GetSection("AdminPanelURL").Value+item.ImagePath)" alt="Stadium Image">
+                        </a>
+                        <h5 class="item-card-title mt-3 mb-3"></h5>
+                        <p class="card-text">
+                            This is a @Html.DisplayFor(modelItem => item.Name) stadium. it provides some services like @Html.DisplayFor(modelItem => item.Services)
+                            it is located in @Html.DisplayFor(modelItem => item.City)
+                        </p>
+                        <h3 class="item-card-title mt-3 mb-3"><a asp-action="Index" asp-controller="Booking" asp-route-id="@item.PlaygroundId">Book</a></h3>
+                    </div>
                 </div>
             </div>
-        </div>
-    }
-</div>
+        }
+    </div>
 
-<!-- Football News -->
-<section id="one">
-    <div class="inner">
-        <header>
-            <h2>Football News</h2>
-        </header>
-        <div class="container news">
-            <div class="row">
-                @if (articles != null)
-                {
-                    @foreach (JObject article in articles.Children().Take(4))
+    <style>
+        .card-text{
+            height:auto;
+        }
+    </style>
+
+    <!-- Football News -->
+    <section>
+        
+            <header>
+                <h2>Football News</h2>
+            </header>
+                <div class="row">
+                    @if (articles != null)
                     {
-                        string imageSrc = "/images/News/" + ++articleIndex + ".jpg";
+                        @foreach (JObject article in articles.Children().Take(4))
+                        {
+                            string imageSrc = "/images/News/" + ++articleIndex + ".jpg";
 
-                        <div class="col- button-container">
-                            <div>
-                                <p class="news-element1 text-truncate text-center bg-primary text-primary">@article.GetValue("summary").ToString()</p>
-                            </div>
-                            <div>
-                                <a href="@article.GetValue("link").ToString()" target="_blank">
-                                    <img src="@imageSrc" class="news-image" alt=" News Image" />
-                                </a>
-                            </div>
-                            <div>
-                                <p class="news-element2">@article.GetValue("rights").ToString()</p>
-                            </div>
-                            <div>
-                                <p class="news-element3">@article.GetValue("published_date").ToString()</p>
-                            </div>
+                            <div class="col-12 col-md-3 button-container">
+                                <div class="item">
+                                    <div class="card item-card card-block">
+                                        <div>
+                                            <a href="@article.GetValue("link").ToString()" target="_blank">
+                                                <img src="@imageSrc" class="img-fluid" alt=" News Image" />
+                                            </a>
+                                        </div>
+                                        <div>
+                                            <p class="card-text text-center bg-primary">
+                                                @article.GetValue("summary").ToString() <br />
+                                                Published on @article.GetValue("published_date").ToString()
+                                                by @article.GetValue("rights").ToString()
+                                            </p>
+                                        </div>
+                                        <div>
+                                            <h3 class="item-card-title mt-3 mb-3">
+                                                <a href="@article.GetValue("link").ToString()" target="_blank" class="button alt">Learn More</a></h3>
 
-                            <div>
-                                <ul class="actions link-button">
-                                    <li><a href="@article.GetValue("link").ToString()" target="_blank" class="button alt">Learn More</a></li>
-                                </ul>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
+                        }
                     }
-                }
-            </div>
-        </div>
-    </div>
-</section>
-
-@* Subscribe us button *@
-
-<style>
-    #myModal {
-        position: fixed;
-        bottom: 0;
-        right: 0;
-        z-index: 1000;
-    }
-</style>
-<!-- Button trigger modal -->
-<button id="myModal" type="button" class="btn btn-primary " data-toggle="modal" data-target="#exampleModal">
-    Subscribe
-</button>
-
-<!-- Modal -->
-<div class="modal fade modalClosing" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h4 class="modal-title" id="exampleModalLabel">Get Notified</h4>
-            </div>
-            <form name="myEmailForm" action="#" method="post">
-                <div class="modal-body">
-                    <label>Email:</label>
-                    <input type="email" required name="email" value="" />
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                    <button type="submit" class="btn btn-primary">Subscribe</button>
+    </section>
+
+
+    @* Subscribe us button *@
+
+    <style>
+        #myModal {
+            position: fixed;
+            bottom: 0;
+            right: 0;
+            z-index: 1000;
+        }
+    </style>
+    <!-- Button trigger modal -->
+    <button id="myModal" type="button" class="btn btn-primary " data-toggle="modal" data-target="#exampleModal">
+        Subscribe
+    </button>
+
+    <!-- Modal -->
+    <div class="modal fade modalClosing" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="exampleModalLabel">Get Notified</h4>
                 </div>
-            </form>
+                <form name="myEmailForm" action="#" method="post">
+                    <div class="modal-body">
+                        <label>Email:</label>
+                        <input type="email" required name="email" value="" />
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary">Subscribe</button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 </div>
-
 <script>
 
     $(function () {
