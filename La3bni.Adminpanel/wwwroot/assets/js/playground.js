@@ -8,19 +8,20 @@
 
     /// if the user press to add more times to the stadium
     $("#addDifferentPeriod").click(function () {
-
-        /// check if there is no value do nothing 
+        /// check if there is no value do nothing
         if (!($("#from").val()) || !($("#to").val()))
             return;
-        /// else do the following 
+        /// else do the following
         document.getElementById("timesRecord").style.display = "block";
         $("#header").css("display", "none");
         $("#table2").css("margin-top", "15px");
-        
-       var hoursfrom = $("#from").val();   // to ge hours and minutes seperately 
-       var hoursto = $("#to").val();
 
-        // add this record to table in the view 
+        var hoursfrom = $("#from").val();   // to ge hours and minutes seperately
+        var hoursto = $("#to").val();
+
+        console.log(hoursfrom, hoursto)
+
+        // add this record to table in the view
         var timesrecords = "<tr><td>" + "<input disabled type='text' value=" + $("#from").val() /*new Date($("#from").val()).toLocaleTimeString()*/ + "></td><td>" + "<td><input disabled type='text' value=" + $("#to").val() /*new Date($("#to").val()).toLocaleTimeString()*/ + "></td><td></td></tr>"
         $("#timesRecord").last().append(timesrecords);
 
@@ -30,12 +31,17 @@
         let [hours, minutes] = hoursfrom.split(':');
         let [hours1, minutes1] = hoursto.split(':');
 
+        hours = parseInt(hours) % 12;
+        hours = hours ? hours : 0;
+
+        hours1 = parseInt(hours1) % 12;
+        hours1 = hours1 ? hours1 : 0;
+
         if (hours1 - hours < 1)
             return;
 
         let Frominput = new Date();
         let Toinput = new Date();
-
 
         Frominput.setHours(+hours + 2);
         Frominput.setMinutes(minutes);
@@ -43,18 +49,14 @@
         Toinput.setHours(+hours1 + 2);
         Toinput.setMinutes(minutes1);
 
-
         // create object to store the updated attributes
 
         var PlaygroundTimes = {};
         PlaygroundTimes.From = Frominput;
         PlaygroundTimes.To = Toinput;
-        PlaygroundTimes.State = hours > 11 ? 1 : 0;
-
-
+        PlaygroundTimes.State = hours >= 12 ? 0 : 1;
 
         playgroundtimesList.push(PlaygroundTimes);
-
 
         // reset these values
         document.getElementById("from").value = "";
@@ -64,8 +66,6 @@
     /// user prss create or update button to save playground info
 
     $("#AddPlayground").click(function () {
-
-        
         // get attributes values of the current playground
 
         var Playground = {};
@@ -86,8 +86,7 @@
 
         /// if current working page is create
         if (names[names.length - 1] == "Create") {
-
-            Playground.OverView = $("#OverView").val()??" ";
+            Playground.OverView = $("#OverView").val() ?? " ";
             // get the data of playground image
             var fileInput = document.getElementById('ImageFile');
 
@@ -96,7 +95,6 @@
 
             ///
             reader.onload = function () {
-         
                 /// create ajax request to get playground and playgroundtimes data
                 /// send to controller and update the database
 
@@ -124,9 +122,8 @@
         }
 
         /// if the current working page is edit
-        
-        else if(names[names.length-1] == "Edit") {
-            
+
+        else if (names[names.length - 1] == "Edit") {
             Playground.PlaygroundId = $("#PlaygroundId").val();
             Playground.ImagePath = $("#ImagePath").val();
             $.ajax({
@@ -145,11 +142,9 @@
                     location.href = 'Edit';
                 }
             });
-
         }
     });
 });
-
 
 /// to delete the arget record
 function deleteRecorde(obj, timesID) {
@@ -173,15 +168,19 @@ function deleteRecorde(obj, timesID) {
 }
 
 function updateRecorde(obj, timesID) {
-   
     ///get the hours and mintues (time)  and convert them to the current date
 
-    
     var hoursfrom = obj.parentNode.parentNode.children[0].children[0].value;
     var hoursto = obj.parentNode.parentNode.children[1].children[0].value;
 
     let [hours, minutes] = hoursfrom.split(':');
     let [hours1, minutes1] = hoursto.split(':');
+
+    hours = parseInt(hours) % 12;
+    hours = hours ? hours : 0;
+
+    hours1 = parseInt(hours1) % 12;
+    hours1 = hours1 ? hours1 : 0;
 
     if (hours1 - hours < 1)
         return;
@@ -189,13 +188,11 @@ function updateRecorde(obj, timesID) {
     let Frominput = new Date();
     let Toinput = new Date();
 
-
     Frominput.setHours(+hours + 2);
     Frominput.setMinutes(minutes);
 
     Toinput.setHours(+hours1 + 2);
     Toinput.setMinutes(minutes1);
-
 
     // create object to store the updated attributes
 
@@ -203,12 +200,12 @@ function updateRecorde(obj, timesID) {
     PlaygroundTimes.From = Frominput;
     PlaygroundTimes.To = Toinput;
     PlaygroundTimes.PlaygroundTimesId = timesID;
-    PlaygroundTimes.State = hours > 11 ? 1 : 0;
+    PlaygroundTimes.State = hours >= 12 ? 0 : 1;
 
     alert("here");
 
     $.ajax({
-        type:'POST',
+        type: 'POST',
         dataType: 'text',
         url: "https://localhost:44316/playgrounds/UpdatePlayGroundTimes",
         data: {

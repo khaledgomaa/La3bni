@@ -96,6 +96,7 @@ namespace La3bni.Adminpanel.Controllers
                     foreach (var stadiumTimes in playgroundTimes)
                     {
                         stadiumTimes.Playground = playground1;
+
                         //stadiumTimes.PlaygroundId = playground1.PlaygroundId;
                         unitOfWork.PlaygroundTimesRepo.Add(stadiumTimes);
                     }
@@ -122,6 +123,7 @@ namespace La3bni.Adminpanel.Controllers
 
                 int playgroundId = JsonConvert.DeserializeObject<int>(pid);
                 var playgroundTimes = unitOfWork.PlaygroundTimesRepo.Find(t => t.PlaygroundTimesId == playgroundId);
+
                 unitOfWork.PlaygroundTimesRepo.Delete(await playgroundTimes);
                 unitOfWork.Save();
 

@@ -1,4 +1,11 @@
 ﻿var bookingId = 0;
+var BookTeam = 0,
+    CancelBook = 1,
+    CanJoinTeam = 2,
+    CanNotJoinTeam = 3,
+    LeaveTeam = 4,
+    Paid = 5;
+
 function checkBooking() {
     if (checkDateIsValid()) {
         getPlaygroundTimes();
@@ -10,7 +17,7 @@ function checkBooking() {
 function onChangeSelectedPeriod(id) {
     if (checkDateIsValid()) {
         $.ajax({
-            url: 'https://localhost:44379/Booking/GetBookings',
+            url: 'https://localhost:44379/Booking/GetPlayerBookingStatus',
             type: "get", //send it through get method
             data: {
                 playGroundId: document.getElementById("playground").value,
@@ -18,40 +25,35 @@ function onChangeSelectedPeriod(id) {
                 timeId: id
             },
             success: function (response) {
-                console.log(response);
-                if (response.bookingExist == true) {
-                    document.getElementById("bookBtn").value = "Join Team";
-                    removeMaxNumOfPlayers();
-                    if (response.numOfPlayers < response.maxNumOfPlayers) { //bookingStatus ==1 means it's available
-                        changeBtnandMessageState(false, "This period has beed booked if you'd like to join this team click Join team =D");
-
-                        bookingId = response.bookingId;
-                        // console.log(bookingId);
-                    } else {
-                        changeBtnandMessageState(true, "This period has beed booked and no available place :(");
-                    }
-                } else if (response.bookingId != 0) { // != 0 in this case user has booked before
-                    bookingId = response.bookingId;
-                    if (response.bookingOwner == false) {
-                        removeMaxNumOfPlayers()
-                        document.getElementById("bookBtn").value = "Leave Team";
-                    } else {
+                switch (response) {
+                    case BookTeam:
+                        document.getElementById("bookBtn").value = "Book";
+                        addMaxNumOfplayersandChecking();
+                        break;
+                    case CancelBook:
                         removeMaxNumOfPlayers();
-                        if (response.paid == 0) {
-                            document.getElementById("bookBtn").value = "Cancel Booking";
-                        } else {
-                            var btn = document.getElementById("bookBtn");
-                            btn.value = "Paid";
-                            btn.disabled = true;
-                        }
-
-                        //console.log("Cancel My Booking Please");
-                    }
-                } else if (response.playgroundStatus == 1) {
-                    changeBtnandMessageState(true, "We're in maintenance please be patient");
-                } else {
-                    document.getElementById("bookBtn").value = "Book";
-                    addMaxNumOfplayersandChecking();
+                        document.getElementById("bookBtn").value = "Cancel Booking";
+                        break;
+                    case Paid:
+                        removeMaxNumOfPlayers();
+                        var btn = document.getElementById("bookBtn");
+                        btn.value = "Paid";
+                        btn.disabled = true;
+                        break;
+                    case LeaveTeam:
+                        removeMaxNumOfPlayers();
+                        document.getElementById("bookBtn").value = "Leave Team";
+                        break;
+                    case CanJoinTeam:
+                        removeMaxNumOfPlayers();
+                        document.getElementById("bookBtn").value = "Join Team";
+                        changeBtnandMessageState(false, "This period has beed booked if you'd like to join this team click Join team =D");
+                        break;
+                    case CanNotJoinTeam:
+                        removeMaxNumOfPlayers();
+                        document.getElementById("bookBtn").value = "Join Team";
+                        changeBtnandMessageState(true, "This period has beed booked and no available place :(");
+                        break;
                 }
             }
         });
@@ -104,7 +106,7 @@ function checkSubmition() {
     } else if (document.getElementById("bookBtn").value == "Cancel Booking") {
         CancelBooking();
     } else if (document.getElementById("bookBtn").value == "Leave Team") {
-        LeaveTeam();
+        leaveTeam();
     }
 }
 
@@ -138,7 +140,9 @@ function joinTeam() {
         url: "https://localhost:44379/Booking/JoinTeam",
         data:
         {
-            bookingId: bookingId
+            period: document.getElementById("periods").value,
+            playgroundId: document.getElementById("playground").value,
+            selectedDate: document.getElementById("selDate").value
         },
         success: function (response) {
             //console.log(response);
@@ -160,7 +164,9 @@ function CancelBooking() {
         url: "https://localhost:44379/Booking/CancelBooking",
         data:
         {
-            bookingId: bookingId
+            period: document.getElementById("periods").value,
+            playgroundId: document.getElementById("playground").value,
+            selectedDate: document.getElementById("selDate").value
         },
         success: function (response) {
             //console.log(response);
@@ -172,13 +178,15 @@ function CancelBooking() {
     });
 }
 
-function LeaveTeam() {
+function leaveTeam() {
     $.ajax({
         type: "get",
         url: "https://localhost:44379/Booking/LeaveTeam",
         data:
         {
-            bookingId: bookingId
+            period: document.getElementById("periods").value,
+            playgroundId: document.getElementById("playground").value,
+            selectedDate: document.getElementById("selDate").value
         },
         success: function (response) {
             //console.log(response);
@@ -193,14 +201,14 @@ function LeaveTeam() {
 function checkDateIsValid() {
     //var myPeriods = document.getElementById("periods");
     var todayDate = new Date().getDate();
-    var todayMonth = new Date().getMonth();
+    var todayMonth = new Date().getMonth() + 1;
     var todayYear = new Date().getFullYear();
 
     var selectedDay = new Date(document.getElementById("selDate").value).getDate();
-    var selectedMonth = new Date(document.getElementById("selDate").value).getMonth();
+    var selectedMonth = new Date(document.getElementById("selDate").value).getMonth() + 1;
     var selectedYear = new Date(document.getElementById("selDate").value).getFullYear();
 
-    if (selectedDay >= todayYear && selectedMonth >= todayMonth && selectedDay >= todayDate) {
+    if (selectedYear <= todayYear && selectedMonth <= todayMonth && selectedDay < todayDate) {
         changeBtnandMessageState(true, "Please select a valid date");
         return false;
     }

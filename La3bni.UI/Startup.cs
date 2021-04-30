@@ -1,3 +1,4 @@
+using La3bni.UI.NotificationManager;
 using La3bni.UI.Payment;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
@@ -41,6 +42,8 @@ namespace La3bni.UI
             services.AddScoped<IEmailRepository, EmailRepository>();
 
             services.AddScoped<ImageManager, ImageManager>();
+
+            services.AddScoped<INotifier, Notifier>();
 
             services.AddIdentity<ApplicationUser, IdentityRole>(options =>
             {

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using La3bni.UI.NotificationManager;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Models;
@@ -17,12 +18,15 @@ namespace La3bni.UI.Controllers
     {
         private readonly IUnitOfWork unitOfWork;
         private readonly UserManager<ApplicationUser> userManager;
+        private readonly INotifier notifier;
 
         public BookingController(IUnitOfWork _unitOfWork,
-                                UserManager<ApplicationUser> _userManager)
+                                UserManager<ApplicationUser> _userManager
+                               , INotifier _notifier)
         {
             unitOfWork = _unitOfWork;
             userManager = _userManager;
+            notifier = _notifier;
         }
 
         [Route("Booking/{id}")]
@@ -38,9 +42,7 @@ namespace La3bni.UI.Controllers
         [AllowAnonymous]
         public List<PlayGroundTimesViewModel> GetTimes(int id)
         {
-            IEnumerable<PlaygroundTimes> times = unitOfWork.PlaygroundTimesRepo.GetAllIQueryable()
-                                        .Where(t => t.PlaygroundId == id)
-                                        .ToList();
+            IEnumerable<PlaygroundTimes> times = GetPlaygroundTimesById(id);
 
             var newTimesFormat = times.Select(a => new PlayGroundTimesViewModel
             {
@@ -51,81 +53,83 @@ namespace La3bni.UI.Controllers
             return newTimesFormat;
         }
 
-        public async Task<BookingViewModel> GetBookings(int playGroundId, string date, string timeId)
+        private List<PlaygroundTimes> GetPlaygroundTimesById(int playGroundId) =>
+            unitOfWork.PlaygroundTimesRepo.GetAllIQueryable()
+                                        .Where(t => t.PlaygroundId == playGroundId)
+                                        .ToList();
+        private async Task<bool> IsUserSignedIn()
         {
-            try
-            {
-                string userId = (await GetCurrentUser())?.Id ?? "";
-
-                if (!string.IsNullOrEmpty(userId))
-                {
-                    if (await CheckPlaygroundStatus(playGroundId) == Status.Available)
-                    {
-                        //GetTimes(playGroundId);
-                        int.TryParse(timeId, out int bookingTimeId);
-                        var bookingDetails = await CheckBookingNotExist(playGroundId, bookingTimeId, userId, date);
-                        int bookingId = bookingDetails?.BookingId ?? 0;
-                        if (bookingId == 0) //0 means no booking found to this user for this parameters
-                        {
-                            var bookings = (await unitOfWork.BookingRepo.Find(
-                                b => b.PlaygroundId == playGroundId
-                                && b.BookedDate.Date >= DateTime.Now.Date
-                                && b.BookedDate.Date == Convert.ToDateTime(date).Date
-                                && b.PlaygroundTimesId == int.Parse(timeId)));
-
-                            if (!string.IsNullOrEmpty(bookings?.ApplicationUserId)
-                                && await CheckJoinedTeam(bookings.BookingId) != 0)
-                                return new BookingViewModel
-                                {
-                                    BookingId = bookings.BookingId,
-                                    BookingOwner = false
-                                };
-
-                            return (new BookingViewModel
-                            {
-                                NumOfPlayers = unitOfWork.BookingTeamRepo.GetAllIQueryable()
-                                                      .Count(b => b.BookingId == bookings.BookingId),
-                                BookingExist = bookings?.BookingId != 0,
-                                BookingStatus = bookings?.BookingStatus ?? BookingStatus.Public,
-                                MaxNumOfPlayers = bookings?.MaxNumOfPlayers ?? 0,
-                                BookingId = bookings?.BookingId ?? 0
-                            });
-                        }
-
-                        return new BookingViewModel
-                        {
-                            BookingId = bookingId,
-                            BookingOwner = true,
-                            Paid = bookingDetails?.Paid ?? 0
-                        };
-                    }
-                    return new BookingViewModel
-                    {
-                        PlaygroundStatus = Status.Busy
-                    };
-                }
-            }
-            catch (Exception e)
-            {
-                Debug.WriteLine(e);
-            }
-
-            return new BookingViewModel();
+            string userId = (await GetCurrentUser())?.Id ?? "";
+            return !string.IsNullOrEmpty(userId);
         }
 
-        public async Task<Booking> CheckBookingNotExist(int playgroundId, int timeId, string userId, string date)
+        private bool IsPlayerCanJoinTeam(int bookingId, int maxNumberOfPlayers) =>
+            unitOfWork.BookingTeamRepo.GetAllIQueryable()
+                                                  .Count(b => b.BookingId == bookingId) < maxNumberOfPlayers;
+
+        private async Task<bool> IsBookingNotExist(int playGroundId, int timeId, DateTime bookedDate)
+        {
+            var booking = await GetBookingByPlayGroundIdWithDateTime(playGroundId, timeId, bookedDate);
+            return string.IsNullOrEmpty(booking?.ApplicationUserId);
+        }
+
+        private async Task<Booking> GetBookingByPlayGroundIdWithDateTime(int playGroundId, int timeId, DateTime bookedDate)
+            => await unitOfWork.BookingRepo.Find(b => b.PlaygroundId == playGroundId
+                                                               && b.PlaygroundTimesId == timeId
+                                                               && b.BookedDate == bookedDate) ?? new Booking();
+
+        public async Task<PlayerBookingStatus> GetPlayerBookingStatus(int playGroundId, string date, string timeId)
+        {
+            if (!await IsUserSignedIn())
+            {
+                return PlayerBookingStatus.NotFound;
+            }
+            else
+            {
+                int.TryParse(timeId, out int bookingTimeId);
+                string userId = (await GetCurrentUser()).Id;
+                DateTime bookedDate = Convert.ToDateTime(date);
+                var booking = await SearchBookingByPlayGroundIdForUserIdWithDateTime(playGroundId, bookingTimeId, userId, bookedDate);
+                if (booking.BookingId == (int)Result.NotFound)
+                {
+                    if (await IsBookingNotExist(playGroundId, bookingTimeId, bookedDate))
+                        return PlayerBookingStatus.BookTeam;
+
+                    var bookingInDb = await GetBookingByPlayGroundIdWithDateTime(playGroundId, bookingTimeId, bookedDate);
+
+                    if (await CheckUserJoinedTeam(userId, bookingInDb.BookingId))
+                        return PlayerBookingStatus.LeaveTeam;
+
+                    if (IsPlayerCanJoinTeam(bookingInDb.BookingId, bookingInDb.MaxNumOfPlayers))
+                        return PlayerBookingStatus.CanJoinTeam;
+
+                    return PlayerBookingStatus.CanNotJoinTeam;
+                }
+                return booking.Paid == (int)PaymentStatus.Paid ? PlayerBookingStatus.Paid : PlayerBookingStatus.CancelBook;
+            }
+        }
+
+        public async Task<Booking> SearchBookingByPlayGroundIdForUserIdWithDateTime(int playGroundId, int timeId, string userId, DateTime date)
         {
             return (await unitOfWork.BookingRepo.Find(b => b.ApplicationUserId == userId
-                                            && b.PlaygroundId == playgroundId
-                                            && b.BookedDate.Date >= DateTime.Now.Date
-                                            && b.BookedDate.Date == Convert.ToDateTime(date).Date
-                                            && b.PlaygroundTimesId == timeId)) ?? new Booking();
+                                        && b.PlaygroundId == playGroundId
+                                        && b.BookedDate.Date >= DateTime.Now.Date
+                                        && b.BookedDate.Date == date.Date
+                                        && b.PlaygroundTimesId == timeId)) ?? new Booking();
+
         }
 
-        private async Task<int> CheckJoinedTeam(int bookingId)
+        private async Task<bool> CheckUserJoinedTeam(string userId, int bookingId)
         {
-            string userId = (await GetCurrentUser())?.Id;
-            return (await unitOfWork.BookingTeamRepo.Find(b => b.BookingId == bookingId && b.ApplicationUserId == userId))?.BookingId ?? 0;
+            var bookingDetails = await unitOfWork.BookingTeamRepo.Find(b => b.BookingId == bookingId && b.ApplicationUserId == userId);
+            return !string.IsNullOrEmpty(bookingDetails?.ApplicationUserId);
+        }
+
+        private async Task<Booking> GetBookingDetails(string period, int playgroundId, string selectedDate)
+        {
+            int.TryParse(period, out int timeId);
+            DateTime bookedDate = Convert.ToDateTime(selectedDate);
+            return await GetBookingByPlayGroundIdWithDateTime(playgroundId, timeId, bookedDate);
         }
 
         public async Task<IActionResult> CreateBooking(string period, int playgroundId, string selectedDate, string numOfPlayers)
@@ -156,12 +160,8 @@ namespace La3bni.UI.Controllers
                 {
                     unitOfWork.BookingRepo.Add(newBooking);
 
-                    unitOfWork.NotificationRepo.Add(new Notification
-                    {
-                        ApplicationUserId = userId,
-                        Title = "Booking has been created",
-                        Body = $"Playground : {playgroundTimesDetails?.Playground.Name ?? "NA"} on {newBooking?.BookedDate:d} - {playgroundTimesDetails}"
-                    });
+                    notifier.SendNotification(userId, "Booking has been created",
+                        $"Playground : {playgroundTimesDetails?.Playground.Name ?? "NA"} on {newBooking?.BookedDate:d} - {playgroundTimesDetails}");
 
                     unitOfWork.Save();
                 }
@@ -174,147 +174,151 @@ namespace La3bni.UI.Controllers
             return Json(new { redirectToUrl = Url.Action("Index", "MyBookings") });
         }
 
-        public async Task<IActionResult> JoinTeam(string bookingId)
+        public async Task<IActionResult> JoinTeam(string period, int playgroundId, string selectedDate)
         {
-            if (int.TryParse(bookingId, out int bookId))
+            try
             {
+                var bookingDetails = await GetBookingDetails(period, playgroundId, selectedDate);
                 var curUser = await GetCurrentUser();
-                var bookingDetails = await unitOfWork.BookingRepo.FindWithInclude(b => b.BookingId == bookId);
-
-                try
+                unitOfWork.BookingTeamRepo.Add(new BookingTeam
                 {
-                    unitOfWork.BookingTeamRepo.Add(new BookingTeam
-                    {
-                        BookingId = bookId,
-                        ApplicationUserId = curUser?.Id
-                    });
+                    BookingId = bookingDetails.BookingId,
+                    ApplicationUserId = curUser?.Id
+                });
 
-                    var bookingOwnerDetails = await userManager.FindByIdAsync(bookingDetails.ApplicationUserId);
-                    unitOfWork.NotificationRepo.Add(new Notification
-                    {
-                        ApplicationUserId = bookingOwnerDetails?.Id,
-                        Title = "New player joined your team",
-                        Body = $"Phone : {curUser?.PhoneNumber} , Playground : {bookingDetails.Playground?.Name ?? "NA"} on {bookingDetails?.BookedDate:d} - {bookingDetails.PlaygroundTimes}"
-                    });
+                var bookingOwnerDetails = await userManager.FindByIdAsync(bookingDetails.ApplicationUserId);
 
-                    unitOfWork.NotificationRepo.Add(new Notification
-                    {
-                        ApplicationUserId = (await GetCurrentUser())?.Id,
-                        Title = "You have joined team",
-                        Body = $"Playground : {bookingDetails.Playground?.Name ?? "NA"} on {bookingDetails?.BookedDate:d} - {bookingDetails.PlaygroundTimes}"
-                    });
+                notifier.SendNotification(bookingOwnerDetails?.Id, "New player joined your team",
+                    $"Phone : {curUser?.PhoneNumber} , Playground : {bookingDetails.Playground?.Name ?? "NA"} on {bookingDetails?.BookedDate:d} - {bookingDetails.PlaygroundTimes}"
+                    );
 
-                    unitOfWork.Save();
-                }
-                catch (Exception e)
-                {
-                    Debug.WriteLine(e);
-                    return Json(new { error = "No teams available please reload your page" });
-                }
+                notifier.SendNotification((await GetCurrentUser())?.Id, "You have joined team",
+                    $"Playground : {bookingDetails.Playground?.Name ?? "NA"} on {bookingDetails?.BookedDate:d} - {bookingDetails.PlaygroundTimes}"
+                    );
+
+                unitOfWork.Save();
+                return Json(new { redirectToUrl = Url.Action("Teams", "MyBookings") });
             }
-
-            return Json(new { redirectToUrl = Url.Action("Teams", "MyBookings") });
-        }
-
-        public async Task<IActionResult> CancelBooking(string bookingId)
-        {
-            if (int.TryParse(bookingId, out int bookId))
+            catch (Exception e)
             {
-                var bookingDetails = await unitOfWork.BookingRepo.FindWithInclude(b => b.BookingId == bookId);
-
-                try
-                {
-                    unitOfWork.NotificationRepo.Add(new Notification
-                    {
-                        ApplicationUserId = (await GetCurrentUser())?.Id,
-                        Title = "Booking has been canceled",
-                        Body = $"Playground : {bookingDetails.Playground.Name} on {bookingDetails.BookedDate:d} - {bookingDetails.PlaygroundTimes}"
-                    });
-                    unitOfWork.BookingRepo.Delete(bookingDetails);
-                    unitOfWork.Save();
-                }
-                catch (Exception e)
-                {
-                    Debug.WriteLine(e);
-                    return Json(new { error = "booking already canceled please reload your page" });
-                }
+                Debug.WriteLine(e);
+                return Json(new { error = "No teams available please reload your page" });
             }
-            return Json(new { redirectToUrl = Url.Action("Index", "MyBookings") });
+
         }
 
-        public async Task<IActionResult> LeaveTeam(string bookingId)
+        public async Task<IActionResult> CancelBooking(string period, int playgroundId, string selectedDate)
         {
-            if (int.TryParse(bookingId, out int bookId))
+            var bookingDetails = await GetBookingDetails(period, playgroundId, selectedDate);
+
+            try
+            {
+                notifier.SendNotification((await GetCurrentUser())?.Id, "Booking has been canceled",
+                    $"Playground : {bookingDetails.Playground.Name} on {bookingDetails.BookedDate:d} - {bookingDetails.PlaygroundTimes}"
+                    );
+
+                unitOfWork.BookingRepo.Delete(bookingDetails);
+                unitOfWork.Save();
+                return Json(new { redirectToUrl = Url.Action("Index", "MyBookings") });
+            }
+            catch (Exception e)
+            {
+                Debug.WriteLine(e);
+                return Json(new { error = "booking already canceled please reload your page" });
+            }
+        }
+
+        public async Task<IActionResult> LeaveTeam(string period, int playgroundId, string selectedDate)
+        {
+            try
             {
                 var userDetails = await GetCurrentUser();
-                var bookingDetails = await unitOfWork.BookingTeamRepo.FindWithInclude(b => b.BookingId == bookId && b.ApplicationUserId == userDetails.Id);
+                int bookingId = (await GetBookingDetails(period, playgroundId, selectedDate))?.BookingId ?? 0;
+                var bookingTeamDetails = await unitOfWork.BookingTeamRepo.FindWithInclude(b => b.BookingId == bookingId);
 
-                try
-                {
-                    unitOfWork.NotificationRepo.Add(new Notification
-                    {
-                        ApplicationUserId = bookingDetails.Booking.ApplicationUserId,
-                        Title = "Player left your team",
-                        Body = $"Playground : {bookingDetails.Booking.Playground?.Name ?? "NA"} on {bookingDetails.Booking?.BookedDate:d} - {bookingDetails.Booking.PlaygroundTimes}"
-                    });
+                notifier.SendNotification(bookingTeamDetails?.Booking?.ApplicationUserId,
+                    "Player left your team",
+                    $"Playground : {bookingTeamDetails.Booking.Playground?.Name ?? "NA"} on {bookingTeamDetails.Booking?.BookedDate:d} - {bookingTeamDetails.Booking.PlaygroundTimes}"
+                    );
 
-                    unitOfWork.NotificationRepo.Add(new Notification
-                    {
-                        ApplicationUserId = userDetails.Id,
-                        Title = "You left team",
-                        Body = $"Playground : {bookingDetails.Booking.Playground?.Name ?? "NA"} on {bookingDetails.Booking?.BookedDate:d} - {bookingDetails.Booking.PlaygroundTimes}"
-                    });
+                notifier.SendNotification(userDetails?.Id,
+                    "You left team",
+                    $"Playground : {bookingTeamDetails.Booking.Playground?.Name ?? "NA"} on {bookingTeamDetails.Booking?.BookedDate:d} - {bookingTeamDetails.Booking.PlaygroundTimes}"
+                    );
 
-                    unitOfWork.BookingTeamRepo.Delete(bookingDetails);
-                    unitOfWork.Save();
-                }
-                catch (Exception e)
-                {
-                    Debug.WriteLine(e);
-                    return Json(new { error = "Team leader already canceled booking please reload your page" });
-                }
+                unitOfWork.BookingTeamRepo.Delete(bookingTeamDetails);
+
+                unitOfWork.Save();
+
+                return Json(new { redirectToUrl = Url.Action("", "Home") });
             }
-            return Json(new { redirectToUrl = Url.Action("", "Home") });
+            catch (Exception e)
+            {
+                Debug.WriteLine(e);
+                return Json(new { error = "Team leader already canceled booking please reload your page" });
+            }
+
+        }
+
+        private void AddNewRatingForUserToPlayground(string userId,int playGroundId,float rate)
+        {
+            unitOfWork.PlaygroundRateRepo.Add(new PlaygroundRate
+            {
+                ApplicationUserId = userId,
+                Rate = rate,
+                PlaygroundId = playGroundId
+            });
+        }
+
+        private float GetPlaygroundAvgRate(int playGroundId)
+        {
+            return unitOfWork.PlaygroundRateRepo.GetAll()
+                                                .Where(r => r.PlaygroundId == playGroundId)
+                                                .Average(r => r.Rate);
+        }
+
+        private async Task UpdatePlayGroundRateById(int playGroundId,float rate)
+        {
+            var playground = await unitOfWork.PlayGroundRepo.Find(p => p.PlaygroundId == playGroundId);
+            playground.Rate = rate;
+            unitOfWork.PlayGroundRepo.Update(playground);
         }
 
         public async Task UpdateRate(string playgroundId, float rate)
         {
             string userId = (await GetCurrentUser())?.Id;
 
-            if (int.TryParse(playgroundId, out int id))
+            if (int.TryParse(playgroundId, out int playGroundId))
             {
-                var checkRatedBefore = await CheckRateBefore(id);
-                if (checkRatedBefore.PlaygroundId != 0)
+                if (await CheckRatedBefore(userId,playGroundId))
                 {
-                    checkRatedBefore.Rate = rate;
-                    unitOfWork.PlaygroundRateRepo.Update(checkRatedBefore);
+                    var ratingDetails = await GetUserPlayGroundRatingDetails(userId, playGroundId);
+                    ratingDetails.Rate = rate;
+                    unitOfWork.PlaygroundRateRepo.Update(ratingDetails);
                 }
                 else
                 {
-                    unitOfWork.PlaygroundRateRepo.Add(new PlaygroundRate
-                    {
-                        ApplicationUserId = userId,
-                        Rate = rate,
-                        PlaygroundId = id
-                    });
+                    AddNewRatingForUserToPlayground(userId, playGroundId, rate);
                     unitOfWork.Save();
                 }
 
-                float avgRate = unitOfWork.PlaygroundRateRepo.GetAll().Where(r => r.PlaygroundId == id)?.Average(r => r.Rate) ?? 0;
+                float playGroundAvgRate = GetPlaygroundAvgRate(playGroundId);
+                await UpdatePlayGroundRateById(playGroundId, playGroundAvgRate);
 
-                var playground = await unitOfWork.PlayGroundRepo.Find(p => p.PlaygroundId == id);
-                playground.Rate = avgRate;
-                unitOfWork.PlayGroundRepo.Update(playground);
                 unitOfWork.Save();
             }
         }
 
-        public async Task<PlaygroundRate> CheckRateBefore(int playGroundId)
-        {
-            string userId = (await GetCurrentUser())?.Id;
+        private async Task<PlaygroundRate> GetUserPlayGroundRatingDetails(string userId, int playGroundId)
+            => await unitOfWork.PlaygroundRateRepo.Find(b => b.ApplicationUserId == userId && b.PlaygroundId == playGroundId)
+            ?? new PlaygroundRate();
 
-            return (await unitOfWork.PlaygroundRateRepo
-                                  .Find(b => b.ApplicationUserId == userId && b.PlaygroundId == playGroundId)) ?? new PlaygroundRate();
+        public async Task<bool> CheckRatedBefore(string userId,int playGroundId)
+        {
+            var ratingDetails = await GetUserPlayGroundRatingDetails(userId, playGroundId);
+            if (string.IsNullOrEmpty(ratingDetails?.ApplicationUserId))
+                return false;
+            return true;
         }
 
         [AllowAnonymous]
@@ -323,9 +327,28 @@ namespace La3bni.UI.Controllers
             return await userManager.GetUserAsync(User);
         }
 
-        private async Task<Status> CheckPlaygroundStatus(int playgroundId)
-        {
-            return (await unitOfWork.PlayGroundRepo.Find(b => b.PlaygroundId == playgroundId))?.PlaygroundStatus ?? Status.Busy;
-        }
+    }
+
+    public enum PlayerBookingStatus
+    {
+        BookTeam,
+        CancelBook,
+        CanJoinTeam,
+        CanNotJoinTeam,
+        LeaveTeam,
+        Paid,
+        NotFound
+    }
+
+    public enum Result
+    {
+        NotFound,
+        Found
+    }
+
+    public enum PaymentStatus
+    {
+        NotPaid,
+        Paid,
     }
 }
