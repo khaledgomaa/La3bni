@@ -290,7 +290,7 @@ namespace La3bni.UI.Controllers
 
             if (int.TryParse(playgroundId, out int playGroundId))
             {
-                if (await CheckRatedBefore(userId,playGroundId))
+                if (await CheckRatedBefore(playGroundId) > 0)
                 {
                     var ratingDetails = await GetUserPlayGroundRatingDetails(userId, playGroundId);
                     ratingDetails.Rate = rate;
@@ -313,19 +313,15 @@ namespace La3bni.UI.Controllers
             => await unitOfWork.PlaygroundRateRepo.Find(b => b.ApplicationUserId == userId && b.PlaygroundId == playGroundId)
             ?? new PlaygroundRate();
 
-        public async Task<bool> CheckRatedBefore(string userId,int playGroundId)
+        public async Task<float> CheckRatedBefore(int playGroundId)
         {
+            string userId = (await GetCurrentUser()).Id;
             var ratingDetails = await GetUserPlayGroundRatingDetails(userId, playGroundId);
-            if (string.IsNullOrEmpty(ratingDetails?.ApplicationUserId))
-                return false;
-            return true;
+            return ratingDetails?.Rate ?? 0;
         }
 
         [AllowAnonymous]
-        public async Task<ApplicationUser> GetCurrentUser()
-        {
-            return await userManager.GetUserAsync(User);
-        }
+        public async Task<ApplicationUser> GetCurrentUser() => await userManager.GetUserAsync(User);
 
     }
 

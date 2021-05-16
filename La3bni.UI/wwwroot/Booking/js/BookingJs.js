@@ -334,14 +334,15 @@ function CustomConfirm() {
 function getCurrentRate() {
     $.ajax({
         type: "get",
-        url: "https://localhost:44379/Booking/CheckRateBefore",
+        url: "https://localhost:44379/Booking/CheckRatedBefore",
         data:
         {
             playgroundId: parseInt(document.getElementById("playground").value)
         },
         success: function (response) {
-            if (response.rate > 0)
-                updateSelectedStar(response.rate);
+            if (response > 0)
+                updateSelectedStar(response);
+            console.log(response);
         },
         error: function (req, status, error) {
             //console.log(msg);
@@ -375,10 +376,10 @@ function updateRate(e) {
 }
 
 function updateSelectedStar(starNum) {
-    var getOtherStars = document.getElementsByTagName("i");
+    var getOtherStars = document.getElementsByClassName("customStar");
 
     for (let i = 0; i < getOtherStars.length; i++) {
-        if (getOtherStars[i].id <= starNum) {
+        if (+getOtherStars[i].id <= +starNum) {
             getOtherStars[i].style.color = "#fc0";
         } else {
             getOtherStars[i].style.color = "aliceblue";
@@ -407,4 +408,5 @@ function updateRateInDb(selRate) {
 var Confirm = new CustomConfirm();
 
 checkBooking();
+
 getCurrentRate();
